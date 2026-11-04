@@ -12,6 +12,7 @@ import { signAccessToken, signRefreshToken } from "./token.util.js";
 import { createSellerWebLogin, hashPortalPassword } from "./sellerWebLogin.js";
 import { FoodRefreshToken } from "../refreshTokens/refreshToken.model.js";
 import { ValidationError, AuthError } from "./errors.js";
+import { FRANCHISE_LOCKED_MESSAGE, isFranchiseAdminId } from "../admin/franchiseLockout.js";
 import { config } from "../../config/env.js";
 import { logger } from "../../utils/logger.js";
 import { sendAdminResetOtpEmail } from "../../utils/email.js";
@@ -308,6 +309,10 @@ export const adminLogin = async (email, password) => {
   const isMatch = await admin.comparePassword(password);
   if (!isMatch) {
     throw new AuthError("Invalid credentials");
+  }
+
+  if (await isFranchiseAdminId(admin._id)) {
+    throw new AuthError(FRANCHISE_LOCKED_MESSAGE);
   }
 
   const payload = { userId: admin._id.toString(), role: admin.role };

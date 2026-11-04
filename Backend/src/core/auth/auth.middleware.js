@@ -1,6 +1,7 @@
 import { verifyAccessToken } from './token.util.js';
 import { sendError } from '../../utils/response.js';
 import { FoodUser } from '../users/user.model.js';
+import { FRANCHISE_LOCKED_MESSAGE, isFranchiseAdminId } from '../admin/franchiseLockout.js';
 import mongoose from 'mongoose';
 
 export const requireAdmin = (req, res, next) => {
@@ -103,6 +104,16 @@ export const authMiddleware = (req, res, next) => {
                 }
                 req.user.vertical = account.vertical;
                 req.user.accountStatus = account.status;
+                next();
+            }).catch(() => sendError(res, 401, 'Invalid token'));
+            return;
+        }
+        if (['ADMIN', 'SUPER_ADMIN', 'SUPERADMIN', 'SUBADMIN', 'FRANCHISE'].includes(role)) {
+            if (!mongoose.Types.ObjectId.isValid(userId)) {
+                return sendError(res, 401, 'Invalid token');
+            }
+            isFranchiseAdminId(userId).then((locked) => {
+                if (locked) return sendError(res, 403, FRANCHISE_LOCKED_MESSAGE);
                 next();
             }).catch(() => sendError(res, 401, 'Invalid token'));
             return;

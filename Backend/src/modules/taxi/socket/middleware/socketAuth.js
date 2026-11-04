@@ -1,6 +1,7 @@
 import { ApiError } from '../../../../utils/ApiError.js';
 import { User } from '../../user/models/User.js';
 import { verifyAccessToken } from '../../services/tokenService.js';
+import { FRANCHISE_LOCKED_MESSAGE, isFranchiseAdminId } from '../../../../core/admin/franchiseLockout.js';
 
 export const getIdentityFromSocket = (socket) => {
   const token = socket.handshake.auth?.token;
@@ -32,6 +33,11 @@ export const attachSocketAuth = (io) => {
         if (!user || user.deletedAt || user.isActive === false || user.active === false) {
           throw new ApiError(401, 'User account is not active');
         }
+      }
+
+      if (/admin|franchise/i.test(String(socket.auth.role || ''))
+        && (await isFranchiseAdminId(socket.auth.sub || socket.auth.userId || socket.auth.id))) {
+        throw new ApiError(403, FRANCHISE_LOCKED_MESSAGE);
       }
 
       next();
