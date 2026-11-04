@@ -243,7 +243,6 @@ adminRouter.get('/admin/status', getAdminStatus);
 adminRouter.post('/admin/forgot-password', forgotPassword);
 adminRouter.post('/admin/verify-reset-otp', verifyResetOtp);
 adminRouter.post('/admin/reset-password', resetPassword);
-adminRouter.get('/admin/tax-report', getTaxiTaxReportData);
 adminRouter.get('/admin/general-settings/:category', getGeneralSettingsCategory);
 adminRouter.get('/admin/countries', getCountries);
 adminRouter.get('/admin/service-locations', getServiceLocations);
@@ -329,6 +328,7 @@ adminRouter.get('/admin/driver-ratings', authenticate(['admin']), getDriverRatin
 adminRouter.get('/admin/driver-ratings/:id', authenticate(['admin']), getDriverRatingDetail);
 
 adminRouter.get('/admin/driver-subscriptions/subscribers', getDriverSubscribers);
+adminRouter.get('/admin/tax-report', getTaxiTaxReportData);
 adminRouter.get('/admin/driver-subscriptions/plans/list', getSubscriptionPlans);
 adminRouter.post('/admin/driver-subscriptions/plans/create', createSubscriptionPlan);
 adminRouter.get('/admin/driver-subscriptions/settings', getSubscriptionSettings);
