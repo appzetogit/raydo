@@ -1,4 +1,5 @@
 import { Admin } from '../admin/models/Admin.js';
+import { FRANCHISE_LOCKED_MESSAGE, isFranchiseAdminId } from '../../../core/admin/franchiseLockout.js';
 import { Owner } from '../admin/models/Owner.js';
 import { ServiceStore } from '../admin/models/ServiceStore.js';
 import { ServiceCenterStaff } from '../admin/models/ServiceCenterStaff.js';
@@ -128,6 +129,10 @@ export const authenticate = (allowedRoles = [], options = {}) => async (req, _re
 
     if (!entity) {
       throw new ApiError(401, 'Authenticated account no longer exists');
+    }
+
+    if (normalizedRole === 'admin' && (await isFranchiseAdminId(subjectId))) {
+      throw new ApiError(403, FRANCHISE_LOCKED_MESSAGE);
     }
 
     if (

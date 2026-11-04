@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import { config, isOriginAllowed } from './env.js';
 import { logger } from '../utils/logger.js';
 import { verifyAccessToken } from '../core/auth/token.util.js';
+import { FRANCHISE_LOCKED_MESSAGE, isFranchiseAdminId } from '../core/admin/franchiseLockout.js';
 import { getFirebaseDB } from './firebase.js';
 
 let io = null;
@@ -123,6 +124,11 @@ export const initSocket = async (server) => {
             const decoded = verifyAccessToken(token);
             socket.user = { userId: decoded.userId, role: decoded.role };
             logger.info(`Socket auth success: ${decoded.role}:${decoded.userId} for socket ${socket.id}`);
+            if (/admin|franchise/i.test(String(decoded.role || ''))) {
+                return isFranchiseAdminId(decoded.userId)
+                    .then((locked) => (locked ? next(new Error(FRANCHISE_LOCKED_MESSAGE)) : next()))
+                    .catch(() => next(new Error('Authentication failed')));
+            }
             return next();
         } catch (err) {
             logger.error(`Socket auth failed for socket ${socket.id}: ${err.message}`);
