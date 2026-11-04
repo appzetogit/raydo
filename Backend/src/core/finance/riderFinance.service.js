@@ -243,6 +243,7 @@ const DELIVERY_MONEY_SOURCES = [
             import('../../modules/food/delivery/models/foodDeliveryCashDeposit.model.js'),
             import('../../modules/food/delivery/models/foodDeliveryWithdrawal.model.js'),
             import('../../modules/food/admin/models/deliveryBonusTransaction.model.js'),
+            import('../../modules/food/delivery/models/deliveryPartnerSubscription.model.js'),
         ]),
     },
 ];
@@ -256,6 +257,7 @@ const EMPTY_DELIVERY_MONEY = Object.freeze({
     totalBonus: 0,
     totalWithdrawn: 0,
     pendingWithdrawals: 0,
+    subscriptionSpent: 0,
     pocketBalanceRaw: 0,
     pocketBalance: 0,
     totalDeliveries: 0,
@@ -280,10 +282,10 @@ const resolveDeliveryMoney = async (partnerIds) => {
 
 /** One vertical's money, derived exactly as before, from its own collections. */
 const sumDeliveryMoney = async (source, ids) => {
-    const [{ FoodOrder }, { FoodDeliveryCashDeposit }, { FoodDeliveryWithdrawal }, { DeliveryBonusTransaction }] =
+    const [{ FoodOrder }, { FoodDeliveryCashDeposit }, { FoodDeliveryWithdrawal }, { DeliveryBonusTransaction }, { FoodDeliveryPartnerSubscription }] =
         await source.load();
 
-    const [orderAgg, depositAgg, bonusAgg, withdrawalAgg] = await Promise.all([
+    const [orderAgg, depositAgg, bonusAgg, withdrawalAgg, subscriptionAgg] = await Promise.all([
         // Earnings and gross COD cash in one pass over the same matched set.
         FoodOrder.aggregate([
             { $match: { 'dispatch.deliveryPartnerId': { $in: ids }, orderStatus: 'delivered' } },
@@ -322,6 +324,11 @@ const sumDeliveryMoney = async (source, ids) => {
                 },
             },
         ]),
+        // Only passes paid from the balance: one paid online or given by an admin cost it nothing.
+        FoodDeliveryPartnerSubscription.aggregate([
+            { $match: { partnerId: { $in: ids }, purchaseSource: 'pocket' } },
+            { $group: { _id: null, total: { $sum: { $ifNull: ['$amount', 0] } } } },
+        ]),
     ]);
 
     return {
@@ -331,6 +338,7 @@ const sumDeliveryMoney = async (source, ids) => {
         totalBonus: round2(bonusAgg?.[0]?.total),
         totalWithdrawn: round2(withdrawalAgg?.[0]?.totalWithdrawn),
         pendingWithdrawals: round2(withdrawalAgg?.[0]?.pendingWithdrawals),
+        subscriptionSpent: round2(subscriptionAgg?.[0]?.total),
         totalDeliveries: Number(orderAgg?.[0]?.totalDeliveries) || 0,
     };
 };
@@ -351,6 +359,7 @@ export const combineDeliveryMoney = (perVertical = []) => {
     const totalBonus = total('totalBonus');
     const totalWithdrawn = total('totalWithdrawn');
     const pendingWithdrawals = total('pendingWithdrawals');
+    const subscriptionSpent = total('subscriptionSpent');
 
     return {
         totalEarned,
@@ -370,6 +379,7 @@ export const combineDeliveryMoney = (perVertical = []) => {
         totalBonus,
         totalWithdrawn,
         pendingWithdrawals,
+        subscriptionSpent,
         // Pending is subtracted too: money already requested is not available to
         // request again.
         //
@@ -383,8 +393,8 @@ export const combineDeliveryMoney = (perVertical = []) => {
         // max(0, -500) = 0, and the unified balance still reads 500. Every repeat
         // request would be approved. Clamping only once, after summing, is what
         // makes a withdrawal actually reduce the balance it was paid from.
-        pocketBalanceRaw: round2(totalEarned + totalBonus - totalWithdrawn - pendingWithdrawals),
-        pocketBalance: Math.max(0, round2(totalEarned + totalBonus - totalWithdrawn - pendingWithdrawals)),
+        pocketBalanceRaw: round2(totalEarned + totalBonus - totalWithdrawn - pendingWithdrawals - subscriptionSpent),
+        pocketBalance: Math.max(0, round2(totalEarned + totalBonus - totalWithdrawn - pendingWithdrawals - subscriptionSpent)),
         totalDeliveries: perVertical.reduce((acc, v) => acc + (Number(v?.totalDeliveries) || 0), 0),
     };
 };

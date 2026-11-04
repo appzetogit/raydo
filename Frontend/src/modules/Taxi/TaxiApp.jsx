@@ -149,6 +149,7 @@ const OwnerBusServicePage = lazy(() => import('./modules/driver/pages/OwnerBusSe
 const OwnerBusBookingsPage = lazy(() => import('./modules/driver/pages/OwnerBusBookingsPage'));
 const ActiveTrip = lazy(() => import('./modules/driver/pages/ActiveTrip'));
 const DriverWallet = lazy(() => import('./modules/driver/pages/DriverWallet'));
+const DriverSubscription = lazy(() => import('./modules/driver/pages/DriverSubscription'));
 const DriverProfile = lazy(() => import('./modules/driver/pages/DriverProfile'));
 const ServiceCenterDashboard = lazy(() => import('./modules/driver/pages/ServiceCenterDashboard'));
 const ServiceCenterVehicleDetails = lazy(() => import('./modules/driver/pages/ServiceCenterVehicleDetails'));
@@ -1023,6 +1024,7 @@ function TaxiApp() {
               <Route path="active-trip" element={<ActiveTrip />} />
               <Route path="chat" element={<Chat />} />
               <Route path="wallet" element={<DriverWallet />} />
+              <Route path="subscription" element={<DriverSubscription />} />
               <Route path="profile" element={<DriverProfile />} />
               <Route path="service-center" element={<ServiceCenterDashboard />} />
               <Route path="service-center/vehicles/new" element={<ServiceCenterVehicleDetails />} />

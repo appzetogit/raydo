@@ -55,14 +55,15 @@ export function getRazorpayInstance() {
     return new Razorpay({ key_id: razorpayKeyId(), key_secret: razorpayKeySecret() });
 }
 
-export function createRazorpayOrder(amountPaise, currency = 'INR', receipt = '') {
+export function createRazorpayOrder(amountPaise, currency = 'INR', receipt = '', notes = undefined) {
     const instance = getRazorpayInstance();
     if (!instance) return Promise.reject(new Error('Razorpay not configured'));
     return instance.orders
         .create({
             amount: Math.round(amountPaise),
             currency,
-            receipt: receipt || undefined
+            receipt: receipt || undefined,
+            notes: notes || undefined
         })
         .catch((error) => {
             const errMsg = getRazorpayErrorMessage(error);
@@ -82,7 +83,7 @@ export function createRazorpayOrder(amountPaise, currency = 'INR', receipt = '')
         });
 }
 
-export async function createRazorpayCheckoutOrder(amountPaise, currency = 'INR', receipt = '') {
+export async function createRazorpayCheckoutOrder(amountPaise, currency = 'INR', receipt = '', notes = undefined) {
     if (!isRazorpayConfigured()) {
         throw new Error('Razorpay payment gateway is not configured');
     }
@@ -92,7 +93,7 @@ export async function createRazorpayCheckoutOrder(amountPaise, currency = 'INR',
         throw new Error('Amount too low for online payment');
     }
 
-    const order = await createRazorpayOrder(roundedAmount, currency, receipt);
+    const order = await createRazorpayOrder(roundedAmount, currency, receipt, notes);
     if (!order?.id) {
         throw new Error('Razorpay order was created without an order id');
     }
@@ -174,6 +175,15 @@ export function verifyPaymentSignature(orderId, paymentId, signature) {
  * Fetch Razorpay payment (server-side) for additional validation (amount/status/order match).
  * @param {string} paymentId
  */
+export async function fetchRazorpayOrder(orderId) {
+    const instance = getRazorpayInstance();
+    if (!instance) throw new Error('Razorpay not configured');
+    if (!orderId) throw new Error('orderId is required');
+    return instance.orders.fetch(String(orderId)).catch((error) => {
+        throw new Error(getRazorpayErrorMessage(error));
+    });
+}
+
 export async function fetchRazorpayPayment(paymentId) {
     const instance = getRazorpayInstance();
     if (!instance) throw new Error('Razorpay not configured');

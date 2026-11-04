@@ -50,6 +50,7 @@ const resolveDeliveryBackPath = ({ pathname, state }) => {
   }
 
   if (
+    normalizedPath === "/profile/subscription" ||
     normalizedPath === "/pocket/payout" ||
     normalizedPath === "/pocket/statement" ||
     normalizedPath === "/pocket/deductions" ||

@@ -3,10 +3,12 @@ import mongoose from 'mongoose';
 const subscriptionPlanSchema = new mongoose.Schema({
   audience: {
     type: String,
-    enum: ['driver', 'user'],
+    enum: ['driver', 'user', 'delivery'],
     default: 'driver',
     index: true,
   },
+  // Delivery plans only: which work the pass covers (food, ride or parcel).
+  service_type: { type: String, default: '' },
   name: String,
   description: String,
   amount: Number,

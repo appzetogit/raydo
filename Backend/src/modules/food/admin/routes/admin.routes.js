@@ -9,6 +9,7 @@ import { sendResponse } from '../../../../utils/response.js';
 import { setDeliveryWalletFigures } from '../services/deliveryWalletAdjust.service.js';
 import { AuthError } from '../../../../core/auth/errors.js';
 import * as adminController from '../controllers/admin.controller.js';
+import * as deliverySubscriptionController from '../controllers/deliverySubscription.controller.js';
 import * as serviceRadiusController from '../../restaurant/controllers/serviceRadius.controller.js';
 import * as foodApprovalController from '../controllers/foodApproval.controller.js';
 import * as addonsApprovalController from '../controllers/addonsApproval.controller.js';
@@ -264,6 +265,14 @@ router.put('/delivery-emergency-help', adminController.createOrUpdateEmergencyHe
  */
 router.get('/withdrawals', adminController.getWithdrawals);
 router.patch('/withdrawals/:id', requireFinancePermission('WITHDRAWAL_DECIDE'), adminController.updateWithdrawalStatus);
+// Delivery partner subscriptions (food / ride / parcel).
+router.get('/delivery/subscriptions', deliverySubscriptionController.getOverview);
+router.put('/delivery/subscriptions/modes', deliverySubscriptionController.updateModes);
+router.post('/delivery/subscriptions/plans', deliverySubscriptionController.createPlan);
+router.patch('/delivery/subscriptions/plans/:id', deliverySubscriptionController.updatePlan);
+router.get('/delivery/subscriptions/subscribers', deliverySubscriptionController.listSubscribers);
+router.post('/delivery/subscriptions/subscribers/grant', deliverySubscriptionController.grantSubscription);
+router.post('/delivery/subscriptions/subscribers/:id/cancel', deliverySubscriptionController.cancelSubscription);
 router.get('/delivery/withdrawals', adminController.getDeliveryWithdrawals);
 router.patch('/delivery/withdrawals/:id', requireFinancePermission('WITHDRAWAL_DECIDE'), adminController.updateDeliveryWithdrawalStatus);
 router.get('/delivery/cash-limit-settlements', adminController.getCashLimitSettlements);

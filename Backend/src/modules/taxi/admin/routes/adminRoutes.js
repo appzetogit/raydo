@@ -141,6 +141,7 @@ import {
   getServiceStores,
   getSmsSettings,
   getSubscriptionPlans,
+  getDriverSubscribers,
   getCustomerSubscriptionPlans,
   getSubscriptionSettings,
   getUserSubscriptions,
@@ -327,6 +328,7 @@ adminRouter.patch('/admin/wallet/drivers/withdrawals/:requestId/reject', authent
 adminRouter.get('/admin/driver-ratings', authenticate(['admin']), getDriverRatings);
 adminRouter.get('/admin/driver-ratings/:id', authenticate(['admin']), getDriverRatingDetail);
 
+adminRouter.get('/admin/driver-subscriptions/subscribers', getDriverSubscribers);
 adminRouter.get('/admin/driver-subscriptions/plans/list', getSubscriptionPlans);
 adminRouter.post('/admin/driver-subscriptions/plans/create', createSubscriptionPlan);
 adminRouter.get('/admin/driver-subscriptions/settings', getSubscriptionSettings);

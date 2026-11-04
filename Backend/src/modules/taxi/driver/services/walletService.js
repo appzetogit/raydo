@@ -8,6 +8,7 @@ import { Ride } from '../../user/models/Ride.js';
 import { getWalletSettings } from '../../services/appSettingsService.js';
 import { getRiderFinance, resolveSharedCashLimit } from '../../../../core/finance/riderFinance.service.js';
 import { mirrorToLedger, taxiWalletRowToEntry } from '../../../../core/finance/ledgerMirror.js';
+import { assertDriverMaySubscriptionWork, subscriptionWaivesCommission } from './driverSubscriptionCore.js';
 
 const normalizeAmount = (value, fieldName = 'amount') => {
   const amount = Number(value);
@@ -197,7 +198,7 @@ export const serializeDriverWallet = async (driver) => {
   };
 };
 
-export const ensureDriverWalletCanAcceptRide = async (driverOrId, { session } = {}) => {
+export const ensureDriverWalletCanAcceptRide = async (driverOrId, { session, serviceType = null } = {}) => {
   const driver =
     typeof driverOrId === 'object' && driverOrId?._id
       ? driverOrId
@@ -206,6 +207,9 @@ export const ensureDriverWalletCanAcceptRide = async (driverOrId, { session } = 
   if (!driver) {
     throw new ApiError(404, 'Driver not found');
   }
+
+  // Subscription-only mode: no live pass, no going online and no accepting rides.
+  await assertDriverMaySubscriptionWork(driver, { session, serviceType });
 
   /*
    * Cash collected on deliveries now blocks rides.
@@ -221,7 +225,12 @@ export const ensureDriverWalletCanAcceptRide = async (driverOrId, { session } = 
    */
   const finance = await getRiderFinance(driver._id, { driverWallet: driver?.wallet || null });
 
-  if (finance.isBlocked) {
+  // The minimum balance exists to cover commission. A driver with a live pass pays none, and buying the pass
+  // may be what lowered the balance, so it must not block them. Every other block still applies.
+  const passCoversMinimum = finance.blockReason === 'below_minimum_balance'
+    && (await subscriptionWaivesCommission(driver._id, new Date(), { session, serviceType: serviceType || 'ride' }));
+
+  if (finance.isBlocked && !passCoversMinimum) {
     await Driver.findByIdAndUpdate(driver._id, {
       'wallet.cashLimit': finance.cashLimit,
       'wallet.isBlocked': true,
@@ -498,7 +507,12 @@ export const settleCompletedRideWallet = async ({ rideId }) => {
     const surgeAmount = Math.max(0, normalizeAmount(ride?.pricingSnapshot?.ride_surge_amount || 0, 'surgeAmount'));
     const commissionableFare = Math.max(0, normalizeAmount(grossFare - surgeAmount, 'commissionableFare'));
     const commissionConfig = await resolveCommissionConfigForRide(ride, session);
-    const commissionAmount = computeCommissionAmount({
+    // A live pass replaces the per-ride commission, judged at the moment the ride completed.
+    const subscriptionWaived = await subscriptionWaivesCommission(ride.driverId, ride.completedAt || new Date(), {
+      session,
+      serviceType: ride.serviceType,
+    });
+    const commissionAmount = subscriptionWaived ? 0 : computeCommissionAmount({
       fare: commissionableFare,
       type: commissionConfig.type,
       value: commissionConfig.value,

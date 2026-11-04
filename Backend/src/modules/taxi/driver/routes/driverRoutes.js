@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../../../../utils/asyncHandler.js";
 import { authenticate } from "../../middlewares/authMiddleware.js";
+import { buyDriverSubscription, getMyDriverSubscriptions } from "../controllers/driverSubscriptionController.js";
 import { getCurrentDriverIncentiveController } from "../../../../core/incentives/controllers/incentiveController.js";
 import {
   addDriverEmergencyContact,
@@ -89,6 +90,16 @@ import { triggerDriverSosAlert } from '../../safety/controllers/safetyController
 
 export const driverRouter = Router();
 
+driverRouter.get(
+  "/subscriptions/me",
+  authenticate(["driver"]),
+  asyncHandler(getMyDriverSubscriptions),
+);
+driverRouter.post(
+  "/subscriptions/purchase",
+  authenticate(["driver"]),
+  asyncHandler(buyDriverSubscription),
+);
 driverRouter.post("/register", asyncHandler(registerDriver));
 driverRouter.post("/login", asyncHandler(loginDriver));
 driverRouter.post("/auth/send-otp", asyncHandler(startDriverLoginOtpRequest));

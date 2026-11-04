@@ -32,6 +32,7 @@ import {
 } from './order.helpers.js';
 import { sendFoodInvoiceEmail } from '../../../../services/email.service.js';
 import { sendFoodInvoiceWhatsApp } from '../../../../services/whatsapp.service.js';
+import { assertPartnerMayWork } from '../../delivery/services/deliverySubscriptionCore.js';
 
 function emitOrderUpdate(order, deliveryPartnerId) {
   try {
@@ -408,6 +409,8 @@ export async function acceptOrderDelivery(orderId, deliveryPartnerId) {
 
   const partnerId = new mongoose.Types.ObjectId(deliveryPartnerId);
   const now = new Date();
+  // An offer sent earlier must not get around subscription-only food.
+  await assertPartnerMayWork(partnerId, 'food');
   // ponytail: a rider must not lock an order the restaurant hasn't confirmed yet ('created' =
   // paid but not accepted). Accept only from 'confirmed' onwards.
   const acceptedStatuses = ['confirmed', 'preparing', 'ready_for_pickup', 'picked_up'];

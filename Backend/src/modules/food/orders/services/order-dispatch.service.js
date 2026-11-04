@@ -18,6 +18,7 @@ import { getIO, rooms } from '../../../../config/socket.js';
 import { loadActiveZones, filterCandidatesToZone, resolveZoneIdForPoint } from '../../shared/zoneMatching.js';
 import { compareInBackground } from '../../../../core/finance/eligibilityShadow.js';
 import { addOrderJob } from '../../../../queues/producers/order.producer.js';
+import { partnerIdsMissingPass } from '../../delivery/services/deliverySubscriptionCore.js';
 import {
   buildDeliverySocketPayload,
   buildOrderIdentityFilter,
@@ -111,7 +112,9 @@ async function listNearbyOnlineDeliveryPartners(
   const unified = await filterByUnifiedWorkMode(allOnline);
   // Riders already carrying an order (Food or Quick/Medical) are judged by the
   // caller against the order itself: core/delivery/batching.js.
-  const eligible = unified;
+  // Subscription-only food: a rider without a live pass is not offered orders they could not accept.
+  const missingPass = await partnerIdsMissingPass(unified.map((p) => p._id), 'food');
+  const eligible = unified.filter((p) => !missingPass.has(String(p._id)));
 
   const scored = [];
   const allowedStatuses = process.env.NODE_ENV === 'production' ? ['approved'] : ['approved', 'pending'];

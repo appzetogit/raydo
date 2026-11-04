@@ -5,6 +5,7 @@ import { FoodDeliveryWithdrawal } from '../models/foodDeliveryWithdrawal.model.j
 import { FoodDeliveryCashDeposit } from '../models/foodDeliveryCashDeposit.model.js';
 import { FoodDeliverySecurityDeposit } from '../models/foodDeliverySecurityDeposit.model.js';
 import { FoodDeliveryPartner } from '../models/deliveryPartner.model.js';
+import { FoodDeliveryPartnerSubscription } from '../models/deliveryPartnerSubscription.model.js';
 import { DeliveryBonusTransaction } from '../../admin/models/deliveryBonusTransaction.model.js';
 import { getDeliveryCashLimitSettings } from '../../admin/services/admin.service.js';
 import { ValidationError } from '../../../../core/auth/errors.js';
@@ -218,7 +219,23 @@ export const getDeliveryPartnerWalletEnhanced = async (deliveryPartnerId) => {
         }
     }
 
-    const mergedTransactions = [...transactions, ...taxiTransactions]
+    // Passes paid from the balance belong in the history too, or the balance stops adding up on screen.
+    const passRows = await FoodDeliveryPartnerSubscription.find({ partnerId, purchaseSource: 'pocket', amount: { $gt: 0 } })
+        .sort({ purchasedAt: -1 })
+        .limit(50)
+        .lean();
+    const passTransactions = passRows.map((pass) => ({
+        id: pass._id,
+        _id: pass._id,
+        type: 'deduction',
+        amount: Number(pass.amount) || 0,
+        status: 'Completed',
+        date: pass.purchasedAt || pass.createdAt,
+        createdAt: pass.purchasedAt || pass.createdAt,
+        description: `Subscription: ${pass.name || 'Plan'}`,
+    }));
+
+    const mergedTransactions = [...transactions, ...taxiTransactions, ...passTransactions]
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     return {

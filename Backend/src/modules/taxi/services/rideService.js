@@ -2201,7 +2201,7 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
         throw new ApiError(409, 'Driver already has another scheduled trip in a similar time range');
       }
 
-      await ensureDriverWalletCanAcceptRide(driver, { session });
+      await ensureDriverWalletCanAcceptRide(driver, { session, serviceType: ride.serviceType });
 
       ride.driverId = driver._id;
       ride.status = RIDE_STATUS.ACCEPTED;
@@ -2991,7 +2991,7 @@ export const acceptRideBidAssignment = async ({ rideId, bidId, userId }) => {
         throw new ApiError(409, 'Driver already has another scheduled trip in a similar time range');
       }
 
-      await ensureDriverWalletCanAcceptRide(driver, { session });
+      await ensureDriverWalletCanAcceptRide(driver, { session, serviceType: ride.serviceType });
 
       ride.driverId = driver._id;
       ride.fare = Number(bid.bidFare || ride.fare || 0);

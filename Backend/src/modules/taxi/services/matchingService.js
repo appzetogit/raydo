@@ -8,6 +8,7 @@ import { Zone } from '../driver/models/Zone.js';
 import { getDriverIdsBlockedByUpcomingScheduledRides } from './rideService.js';
 import { compareInBackground } from '../../../core/finance/eligibilityShadow.js';
 import { TAXI_SPECIFIC_FIRST } from '../../../core/zones/zonePriority.js';
+import { filterDriversBySubscription } from '../driver/services/driverSubscriptionCore.js';
 
 const EARTH_RADIUS_METERS = 6371000;
 
@@ -454,6 +455,9 @@ export const matchDrivers = async (pickupCoords, options = {}) => {
     );
     drivers = drivers.filter((driver) => !fallbackBlockedDriverIds.has(String(driver?._id || '')));
   }
+
+  // Subscription-only mode: only drivers with a live pass get requests.
+  drivers = await filterDriversBySubscription(drivers);
 
   // Development Fallback: If still no matching drivers are found, make a dummy/existing driver online
   // and place them at the pickup location with matching vehicle configuration.

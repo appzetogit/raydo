@@ -1016,6 +1016,21 @@ export const adminAPI = {
     }),
 
   /** Delivery Partner Bonus (admin) */
+  /** Delivery partner subscriptions (admin): food / two-wheeler ride / parcel passes */
+  getDeliverySubscriptions: () =>
+    apiClient.get("/food/admin/delivery/subscriptions", { contextModule: "admin" }),
+  updateDeliverySubscriptionModes: (body) =>
+    apiClient.put("/food/admin/delivery/subscriptions/modes", body ?? {}, { contextModule: "admin" }),
+  createDeliverySubscriptionPlan: (body) =>
+    apiClient.post("/food/admin/delivery/subscriptions/plans", body ?? {}, { contextModule: "admin" }),
+  updateDeliverySubscriptionPlan: (id, body) =>
+    apiClient.patch(`/food/admin/delivery/subscriptions/plans/${String(id)}`, body ?? {}, { contextModule: "admin" }),
+  getDeliverySubscribers: (params = {}) =>
+    apiClient.get("/food/admin/delivery/subscriptions/subscribers", { params, contextModule: "admin" }),
+  grantDeliverySubscription: (body) =>
+    apiClient.post("/food/admin/delivery/subscriptions/subscribers/grant", body ?? {}, { contextModule: "admin" }),
+  cancelDeliverySubscription: (id, reason = "") =>
+    apiClient.post(`/food/admin/delivery/subscriptions/subscribers/${String(id)}/cancel`, { reason }, { contextModule: "admin" }),
   getDeliveryPartnerBonusTransactions: (params = {}) =>
     apiClient.get("/food/admin/delivery/bonus-transactions", {
       params,
@@ -2164,6 +2179,15 @@ const getDeliveryMeOnce = () => {
 
 /** Delivery API - OTP login + registration via new backend. */
 export const deliveryAPI = {
+  /** Subscription passes (food / two-wheeler ride / parcel), bought from the Pocket or paid online */
+  getSubscriptions: () =>
+    apiClient.get("/food/delivery/subscriptions/me", { contextModule: "delivery" }),
+  purchaseSubscription: (planId) =>
+    apiClient.post("/food/delivery/subscriptions/purchase", { planId }, { contextModule: "delivery" }),
+  createSubscriptionPaymentOrder: (planId) =>
+    apiClient.post("/food/delivery/subscriptions/pay/order", { planId }, { contextModule: "delivery" }),
+  verifySubscriptionPayment: (body) =>
+    apiClient.post("/food/delivery/subscriptions/pay/verify", body ?? {}, { contextModule: "delivery" }),
   deleteAccount: () => apiClient.delete('/food/delivery/profile/account', { contextModule: 'delivery' }),
   getWallet: () => apiClient.get('/food/delivery/wallet', { contextModule: 'delivery' }),
   getWallet: () => apiClient.get('/food/restaurant/finance', { contextModule: 'restaurant' }),

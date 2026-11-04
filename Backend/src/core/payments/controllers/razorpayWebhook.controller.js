@@ -118,6 +118,16 @@ export const handleRazorpayWebhook = async (req, res) => {
              */
             const source = await resolveOrderSource({ "payment.razorpay.orderId": rzOrderId });
             if (!source) {
+                // Not a customer order: it may be a delivery partner buying a pass. A failure here
+                // falls through to the 500 below, so Razorpay retries it.
+                const { fetchRazorpayOrder, isRazorpayConfigured } = await import('../../../modules/food/orders/helpers/razorpay.helper.js');
+                const rzOrder = isRazorpayConfigured() ? await fetchRazorpayOrder(rzOrderId) : null;
+                if (rzOrder?.notes?.purpose === 'delivery_subscription') {
+                    const { settlePartnerSubscriptionFromWebhook } = await import('../../../modules/food/delivery/services/deliverySubscription.service.js');
+                    const result = await settlePartnerSubscriptionFromWebhook({ rzOrder, paymentId: rzPaymentId, amountPaise: Number(paymentObj.amount) });
+                    logger.info(`Webhook [payment.captured]: delivery subscription ${rzPaymentId} recorded=${Boolean(result.recorded)}`);
+                    return res.status(200).json({ status: 'ok' });
+                }
                 logger.warn(`Webhook [payment.captured]: no order in any vertical for RZ-Order: ${rzOrderId}`);
                 return res.status(200).json({ status: 'ok' });
             }

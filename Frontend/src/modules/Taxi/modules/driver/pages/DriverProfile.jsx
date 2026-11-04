@@ -229,6 +229,9 @@ const DriverProfile = () => {
                 { id: 'personal', label: 'Personal Information', sub: driverPhone, icon: <User size={20} />, path: `${routePrefix}/edit-profile` },
                 { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} />, path: `${routePrefix}/wallet` },
                 ...(!isOwner ? [
+                    { id: 'subscription', label: 'Subscription', icon: <BadgePercent size={20} />, path: `${routePrefix}/subscription` },
+                ] : []),
+                ...(!isOwner ? [
                     { id: 'vehicle', label: 'My Vehicle', icon: <Car size={20} />, path: `${routePrefix}/vehicle-fleet` },
                 ] : []),
                 { id: 'docs', label: 'Documents', icon: <FileText size={20} />, path: `${routePrefix}/documents` },

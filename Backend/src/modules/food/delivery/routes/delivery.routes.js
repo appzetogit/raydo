@@ -2,6 +2,7 @@ import express from 'express';
 import { upload } from '../../../../middleware/upload.js';
 import { authMiddleware, requireFoodDeliveryPartner } from '../../../../core/auth/auth.middleware.js';
 import { requireRoles } from '../../../../core/roles/role.middleware.js';
+import { createSubscriptionPaymentOrderController, getMySubscriptionsController, purchaseSubscriptionController, verifySubscriptionPaymentController } from '../controllers/deliverySubscription.controller.js';
 import * as orderController from '../../orders/controllers/order.controller.js';
 import {
     listOrderEmergencyRequestsController,
@@ -128,6 +129,12 @@ router.post('/orders/:orderId/collect/cash', authMiddleware, requireFoodDelivery
 // ----- Earnings / Settings -----
 router.get('/earning-addons/active', authMiddleware, requireFoodDeliveryPartner, getActiveEarningAddonsController);
 router.post('/reverify', authMiddleware, requireFoodDeliveryPartner, (req, res) => res.json({ success: true, message: 'Submitted' })); // Stub
+
+// Subscription passes (food / ride / parcel), bought from the Pocket or paid online
+router.get('/subscriptions/me', authMiddleware, requireFoodDeliveryPartner, getMySubscriptionsController);
+router.post('/subscriptions/purchase', authMiddleware, requireFoodDeliveryPartner, purchaseSubscriptionController);
+router.post('/subscriptions/pay/order', authMiddleware, requireFoodDeliveryPartner, createSubscriptionPaymentOrderController);
+router.post('/subscriptions/pay/verify', authMiddleware, requireFoodDeliveryPartner, verifySubscriptionPaymentController);
 
 // Pocket / requests page – wallet, earnings, and admin-set delivery settings
 router.get('/wallet', authMiddleware, requireFoodDeliveryPartner, getWalletController);
