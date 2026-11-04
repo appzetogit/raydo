@@ -13,7 +13,7 @@ export default function LandingPage() {
   const [landingSettings, setLandingSettings] = useState(null)
 
   useEffect(() => {
-    document.title = 'Azanto - Rides & Food Delivery'
+    document.title = 'Raydo - Rides & Food Delivery'
 
     let metaDesc = document.querySelector('meta[name="description"]')
     if (!metaDesc) {
@@ -23,7 +23,7 @@ export default function LandingPage() {
     }
     metaDesc.setAttribute(
       'content',
-      'Azanto: book cabs, bikes, autos and parcels, or order food from restaurants near you, all in one app.'
+      'Raydo: book cabs, bikes, autos and parcels, or order food from restaurants near you, all in one app.'
     )
 
     // Hero copy, FAQs, store links and contact details are editable from the admin
@@ -40,7 +40,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white font-[Poppins] text-azanto-ink antialiased overflow-x-clip">
+    <div className="min-h-screen bg-white font-[Poppins] text-raydo-ink antialiased overflow-x-clip">
       <Navbar />
       <main>
         <Hero settings={landingSettings} />

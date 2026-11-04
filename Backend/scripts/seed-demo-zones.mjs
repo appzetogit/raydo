@@ -7,7 +7,7 @@
  *   node scripts/seed-demo-zones.mjs --dry      # print what it would do
  *   node scripts/seed-demo-zones.mjs --remove   # delete what it created
  *
- * Every document it writes carries `seedTag: 'azanto-demo-v1'` and a stable
+ * Every document it writes carries `seedTag: 'raydo-demo-v1'` and a stable
  * `seedKey`, set straight on the collection after the model save (the schemas
  * are strict, so the model would drop them; the app never reads them). Re-runs
  * find their documents by that key and update them in place, and --remove
@@ -25,14 +25,14 @@
  * split pricing and zone filters between them.
  *
  * No images (they would need a network fetch), no drivers, no FSSAI/GST/bank
- * details. Owner phones are the fake 60000xxxxx range, emails @azanto.demo.
+ * details. Owner phones are the fake 60000xxxxx range, emails @raydo.demo.
  *
- * Refuses any database but appzeto_azanto, unless SEED_ALLOW_ANY_DB=1 (tests).
+ * Refuses any database but appzeto_raydo, unless SEED_ALLOW_ANY_DB=1 (tests).
  */
 import 'dotenv/config';
 import mongoose from 'mongoose';
 
-const SEED_TAG = 'azanto-demo-v1';
+const SEED_TAG = 'raydo-demo-v1';
 const DRY = process.argv.includes('--dry');
 const REMOVE = process.argv.includes('--remove');
 
@@ -461,8 +461,8 @@ if (!uri) {
     process.exit(1);
 }
 const dbName = dbNameOf(uri);
-if (!dbName.endsWith('appzeto_azanto') && process.env.SEED_ALLOW_ANY_DB !== '1') {
-    console.error(`Refusing to run against database "${dbName || '(none in URI)'}": expected a name ending in appzeto_azanto.`);
+if (!dbName.endsWith('appzeto_raydo') && process.env.SEED_ALLOW_ANY_DB !== '1') {
+    console.error(`Refusing to run against database "${dbName || '(none in URI)'}": expected a name ending in appzeto_raydo.`);
     process.exit(1);
 }
 
@@ -697,7 +697,7 @@ async function seedCity(city, vehicleIds) {
         const restaurantId = await upsert(FoodRestaurant, 'restaurants', `restaurant:${slug}`, {
             restaurantName: name,
             ownerName: `${name} Owner`,
-            ownerEmail: `owner+${slug}@azanto.demo`,
+            ownerEmail: `owner+${slug}@raydo.demo`,
             ownerPhone: phone,
             primaryContactNumber: phone,
             pureVegRestaurant: pureVeg,

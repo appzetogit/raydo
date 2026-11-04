@@ -2,7 +2,7 @@
  * The complete bill of one taxi ride or parcel, for Taxi admin > Trip Requests.
  *
  * What the customer was charged, line by line, and how it divides between the
- * driver and Azanto. Built from the ride itself:
+ * driver and Raydo. Built from the ride itself:
  *
  *   trip fare (the driver's)  = fare before surge - platform charges
  *   platform charges          = service tax + platform fee + GST on the fee

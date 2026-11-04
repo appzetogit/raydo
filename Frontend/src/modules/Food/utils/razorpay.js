@@ -94,10 +94,10 @@ export const initRazorpayPayment = async (options) => {
       amount: options.amount,
       currency: options.currency || 'INR',
       order_id: options.order_id,
-      name: options.name || 'Azanto',
+      name: options.name || 'Raydo',
       description: options.description || 'Order Payment',
       // Absolute: checkout renders on Razorpay's origin, where a relative path 404s.
-      image: options.image || `${window.location.origin}/brand/azanto-icon-192.png`,
+      image: options.image || `${window.location.origin}/brand/raydo-icon-192.png`,
       prefill: {
         name: options.prefill?.name || '',
         email: options.prefill?.email || '',

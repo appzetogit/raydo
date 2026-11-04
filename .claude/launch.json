@@ -9,7 +9,7 @@
         "dev"
       ],
       "//cwd": "Absolute, not the relative 'Frontend'. A relative cwd resolves against whichever project directory the session happens to be in, and this repo is a clone of D:/projects/master -- so a session opened in the original silently served the ORIGINAL Frontend on this port while appearing to preview this one. Every edit looked like it had no effect.",
-      "cwd": "D:/projects/azanto/Frontend",
+      "cwd": "D:/projects/raydo/Frontend",
       "port": 5173,
       "env": {
         "VITE_BACKEND_PROXY_TARGET": "http://localhost:5000"
@@ -23,7 +23,7 @@
         "run",
         "dev"
       ],
-      "cwd": "D:/projects/azanto/Backend",
+      "cwd": "D:/projects/raydo/Backend",
       "port": 5007
     },
     {
@@ -36,7 +36,7 @@
         "4173",
         "--strictPort"
       ],
-      "cwd": "D:/projects/azanto/Frontend",
+      "cwd": "D:/projects/raydo/Frontend",
       "port": 4173
     }
   ]

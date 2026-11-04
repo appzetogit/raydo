@@ -28,7 +28,7 @@ const ROLES = {
 
 const isDev = config.nodeEnv !== 'production';
 const DEFAULT_CREDENTIALS = {
-  adminEmail: String(process.env.DEFAULT_ADMIN_EMAIL || (isDev ? "admin@azanto.com" : ""))
+  adminEmail: String(process.env.DEFAULT_ADMIN_EMAIL || (isDev ? "admin@raydo.in" : ""))
     .trim()
     .toLowerCase(),
   adminPassword: String(
@@ -291,7 +291,7 @@ export const adminLogin = async (email, password) => {
     admin = await FoodAdmin.create({
       email: DEFAULT_CREDENTIALS.adminEmail,
       password: DEFAULT_CREDENTIALS.adminPassword,
-      name: "Azanto Admin",
+      name: "Raydo Admin",
       isActive: true,
       // Food + taxi only: quick commerce and service-provider are switched off.
       servicesAccess: ["food", "taxi"],
@@ -375,9 +375,9 @@ export const verifyRestaurantOtpAndLogin = async (phone, otp, fcmToken, platform
   if (!restaurantDoc && isDefaultPhone(phone, DEFAULT_CREDENTIALS.restaurantPhone)) {
     // Auto-provision default restaurant account for configured default phone.
     restaurantDoc = await FoodRestaurant.create({
-      restaurantName: "Azanto Demo Restaurant",
-      ownerName: "Azanto Restaurant Owner",
-      ownerEmail: "restaurant@azanto.com",
+      restaurantName: "Raydo Demo Restaurant",
+      ownerName: "Raydo Restaurant Owner",
+      ownerEmail: "restaurant@raydo.in",
       ownerPhone: normalizePhone10(DEFAULT_CREDENTIALS.restaurantPhone),
       primaryContactNumber: normalizePhone10(DEFAULT_CREDENTIALS.restaurantPhone),
       city: "Bhopal",
@@ -521,7 +521,7 @@ export const verifyDeliveryOtpAndLogin = async (phone, otp, fcmToken, platform) 
   if (!deliveryPartner && isDefaultPhone(phone, DEFAULT_CREDENTIALS.deliveryPhone)) {
     // Auto-provision default delivery account for configured default phone.
     deliveryPartner = await FoodDeliveryPartner.create({
-      name: "Azanto Delivery Partner",
+      name: "Raydo Delivery Partner",
       phone: normalizePhone10(DEFAULT_CREDENTIALS.deliveryPhone),
       city: "Bhopal",
       state: "Madhya Pradesh",

@@ -35,7 +35,7 @@ export const upload = multer({
 /**
  * Banners (hero + promotional) may be large GIFs or videos, stored untouched,
  * so their routes get a 50MB per-file cap. The whole request is still bounded
- * by nginx's client_max_body_size (60M on the Azanto host), which keeps the
+ * by nginx's client_max_body_size (60M on the Raydo host), which keeps the
  * in-memory buffering bounded too.
  */
 export const bannerUpload = multer({

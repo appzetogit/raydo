@@ -3,7 +3,7 @@ import { CarFront, Bike, Package, Plane, UtensilsCrossed, Store, Clock3, ArrowRi
 const SERVICES = [
   {
     id: 'rides',
-    eyebrow: 'Azanto Rides',
+    eyebrow: 'Raydo Rides',
     title: 'Get there, your way.',
     body: 'Cabs, bikes and autos at upfront prices, with live tracking from pickup to drop.',
     href: '/taxi/user',
@@ -19,7 +19,7 @@ const SERVICES = [
   },
   {
     id: 'food',
-    eyebrow: 'Azanto Food',
+    eyebrow: 'Raydo Food',
     title: 'Cravings, delivered.',
     body: 'Order from the best restaurants near you and follow your food all the way to your door.',
     href: '/food/user',
@@ -40,8 +40,8 @@ export default function Services() {
     <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-azanto-500">Two services, one app</p>
-          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-azanto-ink sm:text-5xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-raydo-700">Two services, one app</p>
+          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-raydo-ink sm:text-5xl">
             Everything you need to move and eat
           </h2>
         </div>
@@ -52,13 +52,13 @@ export default function Services() {
               key={id}
               id={id}
               className={`group relative scroll-mt-24 overflow-hidden rounded-[2rem] p-8 sm:p-10 ${
-                dark ? 'bg-azanto-ink text-white' : 'bg-linear-to-br from-azanto-500 to-azanto-700 text-white'
+                dark ? 'bg-raydo-ink text-white' : 'bg-linear-to-br from-raydo-500 to-raydo-700 text-white'
               }`}
             >
               <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
               <span
                 className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
-                  dark ? 'bg-azanto-500 text-white' : 'bg-white text-azanto-600'
+                  dark ? 'bg-raydo-500 text-raydo-ink' : 'bg-white text-raydo-700'
                 }`}
               >
                 <Icon className="h-7 w-7" />
@@ -78,7 +78,7 @@ export default function Services() {
               <a
                 href={href}
                 className={`mt-10 inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition ${
-                  dark ? 'bg-azanto-500 text-white hover:bg-azanto-600' : 'bg-white text-azanto-600 hover:bg-azanto-50'
+                  dark ? 'bg-raydo-500 text-raydo-ink hover:bg-raydo-600' : 'bg-white text-raydo-700 hover:bg-raydo-50'
                 }`}
               >
                 {cta} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />

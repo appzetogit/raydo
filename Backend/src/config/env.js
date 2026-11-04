@@ -104,7 +104,7 @@ export const config = {
      * because the phone fetches it; defaults to the brand icon on the site's own origin.
      */
     brandImageUrl: process.env.BRAND_IMAGE_URL
-        || `${parseOrigins(process.env.FRONTEND_URL)[0] || ''}/brand/azanto-icon-512.png`,
+        || `${parseOrigins(process.env.FRONTEND_URL)[0] || ''}/brand/raydo-icon-512.png`,
     uploadMaxFileSizeBytes: Number(process.env.UPLOAD_MAX_FILE_SIZE_MB || 5) * 1024 * 1024,
     /** WebP output quality (1–100). */
     uploadWebpQuality: Number(process.env.UPLOAD_WEBP_QUALITY || 90),
@@ -237,7 +237,7 @@ export const env = {
         cloudName: config.cloudinaryCloudName,
         apiKey: config.cloudinaryApiKey,
         apiSecret: config.cloudinaryApiSecret,
-        folder: process.env.CLOUDINARY_FOLDER || 'azanto-taxi',
+        folder: process.env.CLOUDINARY_FOLDER || 'raydo-taxi',
     },
     firebase: {
         databaseURL: config.firebaseDatabaseUrl,

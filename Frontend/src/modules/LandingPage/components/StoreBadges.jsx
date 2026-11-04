@@ -12,8 +12,8 @@ export default function StoreBadges({ settings, tone = 'dark', className = '' })
 
   const style =
     tone === 'light'
-      ? 'bg-white text-azanto-ink hover:bg-azanto-50'
-      : 'bg-azanto-ink text-white hover:bg-black'
+      ? 'bg-white text-raydo-ink hover:bg-raydo-50'
+      : 'bg-raydo-ink text-white hover:bg-black'
 
   return (
     <div className={`flex flex-wrap gap-3 ${className}`}>

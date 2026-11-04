@@ -46,18 +46,18 @@
 }
 
 @theme inline {
-  /* Azanto brand: the magenta of the logo, sampled from the app icon. */
-  --color-azanto-50: #fff0f6;
-  --color-azanto-100: #ffe0ec;
-  --color-azanto-200: #ffc1d9;
-  --color-azanto-300: #ff8db7;
-  --color-azanto-400: #ff4d8f;
-  --color-azanto-500: #fd0f6d;
-  --color-azanto-600: #e0005a;
-  --color-azanto-700: #b8004a;
-  --color-azanto-800: #8f003a;
-  --color-azanto-900: #5c0026;
-  --color-azanto-ink: #17141a;
+  /* Raydo brand: the yellow of the logo. 700 and darker are for text on light backgrounds. */
+  --color-raydo-50: #fffbe6;
+  --color-raydo-100: #fff4bf;
+  --color-raydo-200: #ffe980;
+  --color-raydo-300: #ffdd40;
+  --color-raydo-400: #ffd400;
+  --color-raydo-500: #ffc400;
+  --color-raydo-600: #d9a300;
+  --color-raydo-700: #7f6000;
+  --color-raydo-800: #5c4600;
+  --color-raydo-900: #3d2e00;
+  --color-raydo-ink: #17141a;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

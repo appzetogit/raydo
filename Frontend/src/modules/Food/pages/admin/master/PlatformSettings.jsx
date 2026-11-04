@@ -128,7 +128,7 @@ function BrandTab({ profile, onSaved }) {
       <Card title="Brand" description="One name and logo for Food and Taxi.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="App name" hint="Shown in every app, email and SMS" wide>
-            <input className={inputCls} value={brand.name} placeholder="Azanto" onChange={(e) => setB("name")(e.target.value)} />
+            <input className={inputCls} value={brand.name} placeholder="Raydo" onChange={(e) => setB("name")(e.target.value)} />
           </Field>
           <ImageField label="Logo" value={brand.logoUrl} onChange={setB("logoUrl")} folder="platform/brand" />
           <ImageField label="Favicon" hint="The small icon in the browser tab" value={brand.faviconUrl} onChange={setB("faviconUrl")} folder="platform/brand" />
@@ -179,7 +179,7 @@ function BrandTab({ profile, onSaved }) {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Registered company name" wide>
-            <input className={inputCls} value={business.legalName} placeholder="Azanto India Pvt Ltd" onChange={setBiz("legalName")} />
+            <input className={inputCls} value={business.legalName} placeholder="Raydo India Pvt Ltd" onChange={setBiz("legalName")} />
           </Field>
           <Field label="GSTIN">
             <input className={inputCls} value={business.gstin} onChange={setBiz("gstin")} />
@@ -425,7 +425,7 @@ function IntegrationsTab({ profile, onSaved }) {
           { key: "apiKey", label: "API key", secret: true, placeholder: "Leave as is to keep the saved one" },
           { key: "senderId", label: "Sender id", placeholder: "QKDROP" },
           { key: "templateId", label: "DLT template id", placeholder: "1007…" },
-          { key: "templateText", label: "Message", hint: "Must match the DLT template exactly. Put {{OTP}} where the code goes.", textarea: true, wide: true, placeholder: "Your Azanto code is {{OTP}}. Valid for {{MINUTES}} minutes." },
+          { key: "templateText", label: "Message", hint: "Must match the DLT template exactly. Put {{OTP}} where the code goes.", textarea: true, wide: true, placeholder: "Your Raydo code is {{OTP}}. Valid for {{MINUTES}} minutes." },
         ]}
         testExtra={{ key: "phone", placeholder: "Mobile number to send a test" }}
         saveNote="Login codes in every app will be sent with this account from now on. Send a test first. Continue?"
@@ -446,7 +446,7 @@ function IntegrationsTab({ profile, onSaved }) {
           { key: "port", label: "Port", type: "number", placeholder: "587" },
           { key: "user", label: "Username", placeholder: "you@yourdomain.com" },
           { key: "pass", label: "Password", secret: true, placeholder: "Leave as is to keep the saved one" },
-          { key: "from", label: "Send as", placeholder: "Azanto <noreply@quickdropsindia.com>", wide: true },
+          { key: "from", label: "Send as", placeholder: "Raydo <noreply@quickdropsindia.com>", wide: true },
         ]}
         testExtra={{ key: "sendTo", placeholder: "Email to send a test (optional)" }}
         onSaved={onSaved}

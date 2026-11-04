@@ -64,7 +64,7 @@ const normalizeOtpScope = (scope) => {
 /** The wording this file used to hard-code. Kept as the fallback, so an unset
  *  SMS_INDIA_HUB_TEMPLATE_TEXT changes nothing about what is sent. */
 export const DEFAULT_OTP_SMS_TEMPLATE =
-    'Welcome to the Azanto powered by SMSINDIAHUB. Your OTP for registration is {{OTP}}';
+    'Welcome to the Raydo powered by Appzeto.Your OTP for registration is {{OTP}}.BGADEC';
 
 /**
  * The message body, rendered from the DLT-registered template.
@@ -116,21 +116,39 @@ const sendSmsViaIndiaHub = async (phone, otp) => {
         }
 
         // SMS India Hub HTTP GET API — query param names are case-sensitive per SOP
+        // An account with a registered DLT entity (SMS_INDIA_HUB_PE_ID) goes through
+        // the MT endpoint, the only route proven to deliver for Raydo's template.
+        const entityId = String(process.env.SMS_INDIA_HUB_PE_ID || '').trim();
         const url = new URL(
             String(config.smsIndiaHubUrl || '').trim()
-                || 'http://cloud.smsindiahub.in/vendorsms/pushsms.aspx',
+                || (entityId
+                    ? 'http://cloud.smsindiahub.in/api/mt/SendSMS'
+                    : 'http://cloud.smsindiahub.in/vendorsms/pushsms.aspx'),
         );
         url.searchParams.append('APIKey', sms.apiKey);
-        url.searchParams.append('sid', sms.senderId);
-        url.searchParams.append('msisdn', msisdn);
-        url.searchParams.append('msg', message);
-        url.searchParams.append('gwid', String(config.smsIndiaHubGwid || '2').trim() || '2');
-        url.searchParams.append('fl', '0');
-        if (config.smsIndiaHubUsername) {
-            url.searchParams.append('uname', config.smsIndiaHubUsername);
-        }
-        if (sms.templateId) {
-            url.searchParams.append('DLT_TE_ID', sms.templateId);
+        if (entityId) {
+            url.searchParams.append('senderid', sms.senderId);
+            url.searchParams.append('channel', 'Trans');
+            url.searchParams.append('DCS', '0');
+            url.searchParams.append('flashsms', '0');
+            url.searchParams.append('number', msisdn);
+            url.searchParams.append('text', message);
+            url.searchParams.append('PEID', entityId);
+            if (sms.templateId) {
+                url.searchParams.append('TemplateId', sms.templateId);
+            }
+        } else {
+            url.searchParams.append('sid', sms.senderId);
+            url.searchParams.append('msisdn', msisdn);
+            url.searchParams.append('msg', message);
+            url.searchParams.append('gwid', String(config.smsIndiaHubGwid || '2').trim() || '2');
+            url.searchParams.append('fl', '0');
+            if (config.smsIndiaHubUsername) {
+                url.searchParams.append('uname', config.smsIndiaHubUsername);
+            }
+            if (sms.templateId) {
+                url.searchParams.append('DLT_TE_ID', sms.templateId);
+            }
         }
 
         logger.info(`[SMS] Sending OTP to ${msisdn} via SMS India Hub...`);

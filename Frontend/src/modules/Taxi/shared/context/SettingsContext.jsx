@@ -204,10 +204,10 @@ export const SettingsProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    let appName = settings.general?.app_name || 'Azanto';
+    let appName = settings.general?.app_name || 'Raydo';
     const lowerAppName = appName.toLowerCase();
     if (lowerAppName.includes('eqosy') || lowerAppName.includes('appzeto') || lowerAppName.includes('rideon') || lowerAppName.includes('rydon') || lowerAppName.includes('k9')) {
-      appName = 'Azanto';
+      appName = 'Raydo';
     }
     document.title = appName;
 

@@ -19,7 +19,7 @@
  *   node scripts/seed-demo-images.mjs --force # re-fetch photos already stored
  *
  * Categories carry the same seedTag as seed-demo-zones.mjs, so its --remove
- * deletes them too. Refuses any database but appzeto_azanto.
+ * deletes them too. Refuses any database but appzeto_raydo.
  */
 import '../src/config/env.js';
 import mongoose from 'mongoose';
@@ -31,7 +31,7 @@ import { FoodCategory } from '../src/modules/food/admin/models/category.model.js
 const dry = process.argv.includes('--dry');
 const force = process.argv.includes('--force');
 
-const SEED_TAG = 'azanto-demo-v1';
+const SEED_TAG = 'raydo-demo-v1';
 const TAG = { seedTag: SEED_TAG };
 
 /** Global home-screen categories: [name, Commons search term, foodTypeScope]. */
@@ -198,7 +198,7 @@ const PACE_MS = 1200;
  * and identifies itself the way their robot policy asks.
  */
 const THUMB_WIDTH = 960;
-const USER_AGENT = 'AzantoDemoSeeder/1.0 (https://azanto.buytogetherindia.com; admin@azanto.com)';
+const USER_AGENT = 'RaydoDemoSeeder/1.0 (https://raydo.in; admin@raydo.in)';
 const withRetry = async (label, fn) => {
     for (let attempt = 0; attempt < 5; attempt += 1) {
         try {
@@ -376,8 +376,8 @@ async function photograph(label, term, folder, apply) {
 
 const main = async () => {
     const dbName = String(process.env.MONGODB_URI || '').split('?')[0].split('/').pop();
-    if (!dbName.endsWith('appzeto_azanto')) {
-        console.error(`Refusing to run against database "${dbName || '(none in URI)'}": expected a name ending in appzeto_azanto.`);
+    if (!dbName.endsWith('appzeto_raydo')) {
+        console.error(`Refusing to run against database "${dbName || '(none in URI)'}": expected a name ending in appzeto_raydo.`);
         process.exit(1);
     }
     await connectDB();

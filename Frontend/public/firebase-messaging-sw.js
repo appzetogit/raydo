@@ -147,7 +147,7 @@ async function loadFirebaseWebConfig() {
   
       self.registration.showNotification(title, {
         body,
-        icon: "/brand/azanto-icon-192.png",
+        icon: "/brand/raydo-icon-192.png",
         image,
         tag: notificationKey,
         renotify: false,

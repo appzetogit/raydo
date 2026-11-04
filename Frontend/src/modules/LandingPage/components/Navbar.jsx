@@ -33,7 +33,7 @@ export default function Navbar() {
       }`}
     >
       <nav className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <a href="/" aria-label="Azanto home">
+        <a href="/" aria-label="Raydo home">
           <BrandLockup />
         </a>
 
@@ -43,7 +43,7 @@ export default function Navbar() {
               key={link.name}
               href={link.href}
               onClick={(e) => scrollTo(e, link.href)}
-              className="text-[15px] font-medium text-gray-600 transition-colors hover:text-azanto-600"
+              className="text-[15px] font-medium text-gray-600 transition-colors hover:text-raydo-700"
             >
               {link.name}
             </a>
@@ -51,12 +51,12 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <a href="/food/user" className="rounded-full px-5 py-2.5 text-sm font-semibold text-azanto-ink transition hover:bg-azanto-50">
+          <a href="/food/user" className="rounded-full px-5 py-2.5 text-sm font-semibold text-raydo-ink transition hover:bg-raydo-50">
             Order food
           </a>
           <a
             href="/taxi/user"
-            className="rounded-full bg-azanto-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-azanto-500/30 transition hover:bg-azanto-600"
+            className="rounded-full bg-raydo-500 px-5 py-2.5 text-sm font-semibold text-raydo-ink shadow-lg shadow-raydo-500/30 transition hover:bg-raydo-600"
           >
             Book a ride
           </a>
@@ -65,7 +65,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="rounded-xl p-2 text-azanto-ink md:hidden"
+          className="rounded-xl p-2 text-raydo-ink md:hidden"
           aria-label={open ? 'Close menu' : 'Open menu'}
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -82,16 +82,16 @@ export default function Navbar() {
                 scrollTo(e, link.href)
                 setOpen(false)
               }}
-              className="block rounded-xl px-3 py-3 text-base font-medium text-gray-700 hover:bg-azanto-50"
+              className="block rounded-xl px-3 py-3 text-base font-medium text-gray-700 hover:bg-raydo-50"
             >
               {link.name}
             </a>
           ))}
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <a href="/food/user" className="rounded-xl border border-azanto-200 py-3 text-center text-sm font-semibold text-azanto-600">
+            <a href="/food/user" className="rounded-xl border border-raydo-200 py-3 text-center text-sm font-semibold text-raydo-700">
               Order food
             </a>
-            <a href="/taxi/user" className="rounded-xl bg-azanto-500 py-3 text-center text-sm font-semibold text-white">
+            <a href="/taxi/user" className="rounded-xl bg-raydo-500 py-3 text-center text-sm font-semibold text-raydo-ink">
               Book a ride
             </a>
           </div>

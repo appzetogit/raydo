@@ -2,7 +2,7 @@
 // endpoint seed it, so the defaults live here once instead of drifting apart.
 //
 // Hero copy, contacts, socials and store links start empty: the landing page has
-// its own Azanto copy and hides contact rows and store badges until an admin fills
+// its own Raydo copy and hides contact rows and store badges until an admin fills
 // them in, instead of shipping someone else's phone number.
 export const createDefaultLandingPageSettings = () => ({
   scope: 'default',
@@ -20,7 +20,7 @@ export const createDefaultLandingPageSettings = () => ({
   app_store_url: '',
   faqs: [
     {
-      question: 'What can I do with Azanto?',
+      question: 'What can I do with Raydo?',
       answer: 'Book rides (cabs, bikes, autos, parcels, airport transfers and rentals) and order food from restaurants near you, all in one app.',
       order: 0,
     },
@@ -46,11 +46,11 @@ export const createDefaultLandingPageSettings = () => ({
     },
   ],
   pages: {
-    about_us: '<h1>About Azanto</h1><p>Azanto brings rides and food delivery together in one app. We connect people with verified drivers and the best local restaurants, safely and affordably.</p>',
-    careers: '<h1>Careers at Azanto</h1><p>Join our team and help build how cities move and eat. We are always looking for engineers, product people, operations and support specialists.</p>',
-    newsroom: '<h1>Azanto Newsroom</h1><p>Company announcements, service launches and updates from Azanto.</p>',
-    terms_conditions: '<h1>Terms of Service</h1><p>By using the Azanto app or website, you agree to these Terms of Service. Azanto acts as a technology platform connecting users with third-party service providers. You must provide accurate details and use the platform lawfully.</p>',
-    privacy_policy: '<h1>Privacy Policy</h1><p>We value your privacy. Azanto collects your personal information (name, contact, location) solely to match and execute rides, deliveries and orders. We do not sell your personal data to advertisers.</p>',
+    about_us: '<h1>About Raydo</h1><p>Raydo brings rides and food delivery together in one app. We connect people with verified drivers and the best local restaurants, safely and affordably.</p>',
+    careers: '<h1>Careers at Raydo</h1><p>Join our team and help build how cities move and eat. We are always looking for engineers, product people, operations and support specialists.</p>',
+    newsroom: '<h1>Raydo Newsroom</h1><p>Company announcements, service launches and updates from Raydo.</p>',
+    terms_conditions: '<h1>Terms of Service</h1><p>By using the Raydo app or website, you agree to these Terms of Service. Raydo acts as a technology platform connecting users with third-party service providers. You must provide accurate details and use the platform lawfully.</p>',
+    privacy_policy: '<h1>Privacy Policy</h1><p>We value your privacy. Raydo collects your personal information (name, contact, location) solely to match and execute rides, deliveries and orders. We do not sell your personal data to advertisers.</p>',
     refund_policy: '<h1>Refund Policy</h1><p>Refunds are processed for verified overcharges or cancelled bookings prior to partner dispatch. UPI and wallet refunds settle within 1 to 3 days, and bank cards settle in 5 to 10 days.</p>',
     cancellation_policy: '<h1>Cancellation Policy</h1><p>Users may cancel bookings free of charge before a driver accepts. Nominal cancellation charges apply once a driver is assigned or dispatch preparation has already started.</p>',
   },

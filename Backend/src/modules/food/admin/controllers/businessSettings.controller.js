@@ -153,8 +153,8 @@ export async function getBusinessSettings(req, res, next) {
         if (!settings) {
             // Create default settings if none exist
             settings = await FoodBusinessSettings.create({
-                companyName: 'Azanto',
-                email: 'admin@Azanto.com'
+                companyName: 'Raydo',
+                email: 'admin@raydo.in'
             });
         }
         // Master settings win where set (core/settings/platformProfile.service.js).

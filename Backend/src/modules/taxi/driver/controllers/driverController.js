@@ -1770,7 +1770,7 @@ const getBiometricFingerHand = (fingerCode = "") => {
 };
 
 const getBiometricEncryptionKey = () =>
-  crypto.createHash("sha256").update(String(env.jwtSecret || "azanto-biometric-secret")).digest();
+  crypto.createHash("sha256").update(String(env.jwtSecret || "raydo-biometric-secret")).digest();
 
 const encryptBiometricTemplate = (template = "") => {
   const raw = String(template || "");

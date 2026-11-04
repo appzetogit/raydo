@@ -782,7 +782,7 @@ const ParcelTracking = () => {
             key: order.keyId,
             amount: order.amount,
             currency: order.currency || 'INR',
-            name: 'Azanto',
+            name: 'Raydo',
             description: `Tip for delivery captain`,
             order_id: order.orderId,
             prefill: {

@@ -51,7 +51,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import quickSpicyLogo from "@food/assets/azanto-logo.png";
+import quickSpicyLogo from "@food/assets/raydo-logo.png";
 import { getCachedSettings, loadBusinessSettings, normalizeCompanyName } from "@food/utils/businessSettings";
 import { refreshAdminAccess, useAdminAccess, hasPanel, isRestricted, canOpenPath } from "@food/utils/adminAccess";
 
@@ -643,10 +643,10 @@ const AdminLayout = () => {
   const notificationsMenuRef = useRef(null);
   const [adminProfile, setAdminProfile] = useState(() => readAdminProfile());
 
-  const appName = settings.general?.app_name || 'Azanto';
+  const appName = settings.general?.app_name || 'Raydo';
   const [businessCompanyName, setBusinessCompanyName] = useState(() => {
     const cached = getCachedSettings();
-    return normalizeCompanyName(cached?.companyName) || settings.general?.app_name || 'Azanto';
+    return normalizeCompanyName(cached?.companyName) || settings.general?.app_name || 'Raydo';
   });
 
   useEffect(() => {

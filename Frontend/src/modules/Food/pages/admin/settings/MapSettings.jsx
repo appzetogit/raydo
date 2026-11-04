@@ -23,7 +23,7 @@ import { toast } from "sonner"
 import { loadRuntimeEnv } from "@/config/runtimeEnv"
 
 /**
- * Google Maps API Key Management for the entire SuperApp / Azanto platform.
+ * Google Maps API Key Management for the entire SuperApp / Raydo platform.
  *
  * Stored in the shared database settings document and served to every module
  * (Food, Taxi, Delivery Logistics and Admin dashboards)

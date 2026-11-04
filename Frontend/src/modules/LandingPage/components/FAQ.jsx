@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 
 const DEFAULT_FAQS = [
   {
-    question: 'What can I do with Azanto?',
+    question: 'What can I do with Raydo?',
     answer: 'Book rides (cabs, bikes, autos, parcels, airport transfers and rentals) and order food from restaurants near you, all in one app.',
   },
   {
@@ -29,11 +29,11 @@ export default function FAQ({ settings }) {
   const [open, setOpen] = useState(0)
 
   return (
-    <section id="faq" className="scroll-mt-20 bg-azanto-50/50 py-24">
+    <section id="faq" className="scroll-mt-20 bg-raydo-50/50 py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-azanto-500">FAQ</p>
-          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-azanto-ink sm:text-5xl">Questions, answered</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-raydo-700">FAQ</p>
+          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-raydo-ink sm:text-5xl">Questions, answered</h2>
         </div>
 
         <div className="mt-12 space-y-3">
@@ -47,10 +47,10 @@ export default function FAQ({ settings }) {
                   aria-expanded={isOpen}
                   className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left"
                 >
-                  <span className="text-base font-semibold text-azanto-ink">{faq.question}</span>
+                  <span className="text-base font-semibold text-raydo-ink">{faq.question}</span>
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition ${
-                      isOpen ? 'rotate-45 bg-azanto-500 text-white' : 'bg-azanto-50 text-azanto-600'
+                      isOpen ? 'rotate-45 bg-raydo-500 text-raydo-ink' : 'bg-raydo-50 text-raydo-700'
                     }`}
                   >
                     <Plus className="h-4 w-4" />

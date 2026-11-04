@@ -59,7 +59,7 @@ import { Input } from "@food/components/ui/input"
 import { adminSidebarMenu } from "@food/utils/adminSidebarMenu"
 import { masterSidebarMenu } from "@food/utils/masterSidebarMenu"
 import { getCachedSettings, loadBusinessSettings } from "@food/utils/businessSettings"
-import quickSpicyLogo from "@food/assets/azanto-logo.png"
+import quickSpicyLogo from "@food/assets/raydo-logo.png"
 import { useSettings } from "../../../Taxi/shared/context/SettingsContext"
 import { useAdminAccess, filterMenuForAccess, hasPanel, isRestricted } from "@food/utils/adminAccess"
 /**
@@ -151,7 +151,7 @@ const iconMap = {
 const FOOD_ADMIN_BASE = "/admin/food"
 
 const getVerticalTitle = (customName = "") => {
-  const name = (customName || "Azanto").trim()
+  const name = (customName || "Raydo").trim()
   return name.toLowerCase().endsWith("food") ? name : `${name} Food`
 }
 
