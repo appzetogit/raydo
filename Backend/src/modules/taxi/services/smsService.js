@@ -6,8 +6,8 @@ import { AdminBusinessSetting } from '../admin/models/AdminBusinessSetting.js';
 
 const SMS_INDIA_HUB_ENDPOINT = 'http://cloud.smsindiahub.in/api/mt/SendSMS';
 const DLT_TEMPLATE_TEXT =
-  'Welcome to ##var## Powered by IIDMTB. Use OTP ##var## to verify your login.';
-const DEFAULT_BRAND_NAME = 'App';
+  'Welcome to the ##var## powered by Appzeto.Your OTP for registration is ##var##.BGADEC';
+const DEFAULT_BRAND_NAME = 'Raydo';
 
 const isTruthy = (value) => ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
 
@@ -199,6 +199,11 @@ const buildSmsPayload = ({ phone, otp, appName, authMode = 'apiKey' }) => {
     text: renderOtpMessage({ appName, otp }),
     TemplateId: config.templateId,
   });
+
+  const entityId = readValue(process.env.SMS_INDIA_HUB_PE_ID);
+  if (entityId) {
+    payload.set('PEID', entityId);
+  }
 
   if (useApiKey) {
     payload.set('APIKey', config.apiKey);
