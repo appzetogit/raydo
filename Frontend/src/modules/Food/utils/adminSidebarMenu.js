@@ -230,6 +230,28 @@ export const adminSidebarMenu = [
   },
   {
     type: "section",
+    label: "FRANCHISE MANAGEMENT",
+    items: [
+      {
+        type: "expandable",
+        label: "Franchise",
+        icon: "Building2",
+        subItems: [
+          { label: "Dashboard", path: "/admin/food/franchise-management" },
+          { label: "Earnings & Commission", path: "/admin/food/franchise-management/finance" },
+          { label: "Franchise List", path: "/admin/food/franchise-management/list" },
+          { label: "Create Franchise", path: "/admin/food/franchise-management/create" },
+          { label: "Zone Pricing", path: "/admin/food/franchise-management/territories" },
+          { label: "Platform Commission", path: "/admin/food/franchise-management/commission" },
+          { label: "Support Tickets Desk", path: "/admin/food/franchise-management/support" },
+          { label: "Application Fees & Taxi Rules", path: "/admin/food/franchise-management/fees" },
+          { label: "Application Form (On/Off)", path: "/admin/food/franchise-management/form-config" }
+        ],
+      },
+    ],
+  },
+  {
+    type: "section",
     label: "BANNER SETTINGS",
     items: [
       { type: "link", label: "Landing Page Management", path: "/admin/food/hero-banner-management", icon: "Image" },

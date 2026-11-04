@@ -1016,6 +1016,101 @@ export const adminAPI = {
     }),
 
   /** Delivery Partner Bonus (admin) */
+  /** Franchise Management (admin) */
+  activateFranchise: (id) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/activate`, {}, { contextModule: "admin" }),
+  changeFranchiseTerritory: (id, body) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/territory`, body ?? {}, { contextModule: "admin" }),
+
+  confirmFranchiseChargePayment: (chargeId, body) =>
+    apiClient.post(`/food/admin/franchise/charges/${String(chargeId)}/confirm-payment`, body ?? {}, { contextModule: "admin" }),
+  createFranchiseApplication: (body) =>
+    apiClient.post("/food/admin/franchise/applications", body ?? {}, { contextModule: "admin" }),
+  createFranchiseCommissionRule: (scope, scopeId, body) =>
+    apiClient.post(`/food/admin/franchise/commission-rules/${scope}${scopeId ? `/${String(scopeId)}` : ""}`, body ?? {}, { contextModule: "admin" }),
+  createFranchiseTerritory: (body) =>
+    apiClient.post("/food/admin/franchise/territories", body ?? {}, { contextModule: "admin" }),
+  decideFranchiseRequest: (id, requestId, body) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/requests/${String(requestId)}`, body ?? {}, { contextModule: "admin" }),
+  deductFranchiseDeposit: (chargeId, body) =>
+    apiClient.post(`/food/admin/franchise/charges/${String(chargeId)}/deduct`, body ?? {}, { contextModule: "admin" }),
+  deleteFranchiseApplication: (id) =>
+    apiClient.delete(`/food/admin/franchise/applications/${String(id)}`, { contextModule: "admin" }),
+  getFranchiseApplicationById: (id) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}`, { contextModule: "admin" }),
+  getFranchiseApplicationStats: () =>
+    apiClient.get("/food/admin/franchise/applications/stats", { contextModule: "admin" }),
+  getFranchiseApplications: (params = {}) =>
+    apiClient.get("/food/admin/franchise/applications", { params, contextModule: "admin" }),
+  getFranchiseAudit: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/audit`, { params, contextModule: "admin" }),
+  getFranchiseCharges: (id) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/charges`, { contextModule: "admin" }),
+  getFranchiseCommissionRules: (scope, scopeId) =>
+    apiClient.get(`/food/admin/franchise/commission-rules/${scope}${scopeId ? `/${String(scopeId)}` : ""}`, { contextModule: "admin" }),
+  getFranchiseEffectiveCommission: (id) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/commission/effective`, { contextModule: "admin" }),
+  getFranchiseFinance: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/finance`, { params, contextModule: "admin" }),
+  getFranchiseFinanceEntries: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/finance/entries`, { params, contextModule: "admin" }),
+  getFranchiseFinanceSummary: (params = {}) =>
+    apiClient.get("/food/admin/franchise/finance/summary", { params, contextModule: "admin" }),
+  getFranchiseFormConfig: () =>
+    apiClient.get("/food/admin/franchise/form-config", { contextModule: "admin" }),
+  getFranchiseLedger: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/ledger`, { params, contextModule: "admin" }),
+  getFranchiseOrders: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/orders`, { params, contextModule: "admin" }),
+  getFranchiseOverview: (id) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/overview`, { contextModule: "admin" }),
+  getFranchiseRestaurants: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/restaurants`, { params, contextModule: "admin" }),
+  getFranchiseTaxiBus: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/taxi/bus`, { params, contextModule: "admin" }),
+  getFranchiseTaxiDrivers: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/taxi/drivers`, { params, contextModule: "admin" }),
+  getFranchiseTaxiRides: (id, params = {}) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/taxi/rides`, { params, contextModule: "admin" }),
+  getFranchiseTaxiZones: (franchiseId) =>
+    apiClient.get("/food/admin/franchise/taxi-zones", { params: { franchiseId }, contextModule: "admin" }),
+  getFranchiseTerritories: () =>
+    apiClient.get("/food/admin/franchise/territories", { contextModule: "admin" }),
+  getFranchiseZoneOptions: () =>
+    apiClient.get("/food/admin/franchise/territories/zones", { contextModule: "admin" }),
+  refundFranchiseDeposit: (chargeId, body) =>
+    apiClient.post(`/food/admin/franchise/charges/${String(chargeId)}/refund`, body ?? {}, { contextModule: "admin" }),
+  replyFranchiseSupportMessage: (id, messageId, body) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/support-messages/${String(messageId)}/reply`, body ?? {}, { contextModule: "admin" }),
+  restoreFranchise: (id) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/restore`, {}, { contextModule: "admin" }),
+  suspendFranchise: (id, reason) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/suspend`, { reason }, { contextModule: "admin" }),
+  syncFranchiseSubAdmin: (id, body = {}) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/subadmin`, body, { contextModule: "admin" }),
+  terminateFranchise: (id, reason) =>
+    apiClient.post(`/food/admin/franchise/applications/${String(id)}/terminate`, { reason }, { contextModule: "admin" }),
+  updateFranchiseApplicationStatus: (id, body) =>
+    apiClient.patch(`/food/admin/franchise/applications/${String(id)}/status`, body ?? {}, { contextModule: "admin" }),
+  updateFranchiseChargeAmount: (chargeId, body) =>
+    apiClient.patch(`/food/admin/franchise/charges/${String(chargeId)}`, body ?? {}, { contextModule: "admin" }),
+  updateFranchiseCommission: (id, body) =>
+    apiClient.patch(`/food/admin/franchise/applications/${String(id)}/commission`, body ?? {}, { contextModule: "admin" }),
+  updateFranchiseFormConfig: (body) =>
+    apiClient.put("/food/admin/franchise/form-config", body ?? {}, { contextModule: "admin" }),
+  updateFranchisePayoutStatus: (id, requestId, body) =>
+    apiClient.patch(`/food/admin/franchise/applications/${String(id)}/payout-requests/${String(requestId)}`, body ?? {}, { contextModule: "admin" }),
+  updateFranchiseProfile: (id, body) =>
+    apiClient.patch(`/food/admin/franchise/applications/${String(id)}/profile`, body ?? {}, { contextModule: "admin" }),
+  updateFranchiseTerritory: (territoryId, body) =>
+    apiClient.patch(`/food/admin/franchise/territories/${String(territoryId)}`, body ?? {}, { contextModule: "admin" }),
+
+  waiveFranchiseCharge: (chargeId, body) =>
+    apiClient.post(`/food/admin/franchise/charges/${String(chargeId)}/waive`, body ?? {}, { contextModule: "admin" }),
+  getFranchiseAnalytics: (id) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/analytics`, { contextModule: "admin" }),
+  getFranchiseTaxiOverview: (id) =>
+    apiClient.get(`/food/admin/franchise/applications/${String(id)}/taxi/overview`, { contextModule: "admin" }),
   /** Delivery partner subscriptions (admin): food / two-wheeler ride / parcel passes */
   getDeliverySubscriptions: () =>
     apiClient.get("/food/admin/delivery/subscriptions", { contextModule: "admin" }),

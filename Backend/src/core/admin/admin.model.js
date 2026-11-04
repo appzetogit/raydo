@@ -43,13 +43,19 @@ const adminSchema = new mongoose.Schema(
         // --- Admin Hierarchy Fields ---
         adminLevel: {
             type: String,
-            enum: Object.values(ADMIN_LEVELS),
+            enum: [...Object.values(ADMIN_LEVELS), 'franchise_superadmin', 'franchise_admin'],
             default: ADMIN_LEVELS.SUBADMIN
         },
         module: {
             type: String,
             enum: [...Object.values(ADMIN_MODULES), null],
             default: null
+        },
+        // Set on a franchise login. Such an account is refused everywhere: see franchiseLockout.js.
+        franchiseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'FranchiseApplication',
+            default: null,
         },
         parentAdminId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -59,7 +65,7 @@ const adminSchema = new mongoose.Schema(
         },
         admin_type: {
             type: String,
-            enum: ['superadmin', 'subadmin'],
+            enum: ['superadmin', 'subadmin', 'franchise', 'franchise_partner'],
             default: 'subadmin'
         },
         permissions: {

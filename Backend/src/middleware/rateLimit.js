@@ -238,6 +238,18 @@ export const webhookRateLimiter = rateLimit({
 const authWindowMs = config.authRateLimitWindowMinutes * 60 * 1000;
 
 /** Stricter rate limit for auth routes (OTP, login, refresh, logout). */
+export const financeWriteRateLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: Number(process.env.FINANCE_WRITE_RATE_LIMIT || 30),
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => String(req.user?.userId || req.ip),
+    message: {
+        success: false,
+        message: 'Too many financial actions in a short time. Please wait a minute and try again.'
+    }
+});
+
 export const authRateLimiter = rateLimit({
     windowMs: authWindowMs,
     // Dev UX: login/otp testing can be frequent. Production stays strict.

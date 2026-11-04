@@ -106,6 +106,16 @@ const DeliveryCashLimit = lazy(() => import("@food/pages/admin/DeliveryCashLimit
 const CashLimitSettlement = lazy(() => import("@food/pages/admin/CashLimitSettlement"));
 const DeliveryWithdrawal = lazy(() => import("@food/pages/admin/DeliveryWithdrawal"));
 const DeliveryBoyWallet = lazy(() => import("@food/pages/admin/DeliveryBoyWallet"));
+const FranchiseDashboard = lazy(() => import("@food/pages/admin/franchise/FranchiseDashboard"));
+const FranchiseList = lazy(() => import("@food/pages/admin/franchise/FranchiseList"));
+const FranchiseSupportDesk = lazy(() => import("@food/pages/admin/franchise/FranchiseSupportDesk"));
+const FranchiseModuleFees = lazy(() => import("@food/pages/admin/franchise/FranchiseModuleFees"));
+const FranchiseFormConfig = lazy(() => import("@food/pages/admin/franchise/FranchiseFormConfig"));
+const FranchiseCreate = lazy(() => import("@food/pages/admin/franchise/FranchiseCreate"));
+const FranchiseTerritories = lazy(() => import("@food/pages/admin/franchise/FranchiseTerritories"));
+const FranchiseCommissionRules = lazy(() => import("@food/pages/admin/franchise/FranchiseCommissionRules"));
+const FranchiseFinanceDashboard = lazy(() => import("@food/pages/admin/franchise/FranchiseFinanceDashboard"));
+const FranchiseApplicationDetail = lazy(() => import("@food/pages/admin/franchise/FranchiseApplicationDetail"));
 const DeliverySubscription = lazy(() => import("@food/pages/admin/delivery-partners/DeliverySubscription"));
 const DeliveryEmergencyHelp = lazy(() => import("@food/pages/admin/DeliveryEmergencyHelp"));
 const DeliverySupportTickets = lazy(() => import("@food/pages/admin/DeliverySupportTickets"));
@@ -275,6 +285,17 @@ const verticalAdminRoutes = (
             <Route path="cash-limit-settlement" element={<CashLimitSettlement />} />
             <Route path="delivery-withdrawal" element={<DeliveryWithdrawal />} />
             <Route path="delivery-boy-wallet" element={<DeliveryBoyWallet />} />
+            <Route path="franchise-management" element={<FranchiseDashboard />} />
+            <Route path="franchise-management/dashboard" element={<FranchiseDashboard />} />
+            <Route path="franchise-management/list" element={<FranchiseList />} />
+            <Route path="franchise-management/support" element={<FranchiseSupportDesk />} />
+            <Route path="franchise-management/fees" element={<FranchiseModuleFees />} />
+            <Route path="franchise-management/form-config" element={<FranchiseFormConfig />} />
+            <Route path="franchise-management/create" element={<FranchiseCreate />} />
+            <Route path="franchise-management/territories" element={<FranchiseTerritories />} />
+            <Route path="franchise-management/commission" element={<FranchiseCommissionRules />} />
+            <Route path="franchise-management/finance" element={<FranchiseFinanceDashboard />} />
+            <Route path="franchise-management/:id" element={<FranchiseApplicationDetail />} />
             <Route path="delivery-partners/subscription" element={<DeliverySubscription />} />
             <Route path="delivery-emergency-help" element={<DeliveryEmergencyHelp />} />
             <Route path="delivery-support-tickets" element={<DeliverySupportTickets />} />

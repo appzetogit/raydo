@@ -9,6 +9,11 @@ import { sendResponse } from '../../../../utils/response.js';
 import { setDeliveryWalletFigures } from '../services/deliveryWalletAdjust.service.js';
 import { AuthError } from '../../../../core/auth/errors.js';
 import * as adminController from '../controllers/admin.controller.js';
+import * as franchiseAdminController from '../controllers/franchise.controller.js';
+import * as franchiseFinanceController from '../controllers/franchiseFinance.controller.js';
+import { financeWriteRateLimiter } from '../../../../middleware/rateLimit.js';
+import { isSuperAdminLike } from '../../../../core/admin/adminHierarchy.service.js';
+import { ForbiddenError } from '../../../../core/auth/errors.js';
 import * as deliverySubscriptionController from '../controllers/deliverySubscription.controller.js';
 import * as serviceRadiusController from '../../restaurant/controllers/serviceRadius.controller.js';
 import * as foodApprovalController from '../controllers/foodApproval.controller.js';
@@ -407,6 +412,71 @@ import { attachFoodAdminContext, requireFoodResourceAccess } from '../middleware
 import * as subadminController from '../controllers/foodAdminManagement.controller.js';
 
 router.use(attachFoodAdminContext);
+
+// ----- Franchise Management -----
+// Stage 1: managing franchises only. Partner logins stay refused (core/admin/franchiseLockout.js)
+// and routes that pay out or rewrite the ledger are not mounted until earnings are ported.
+// Only platform / module super admins may manage franchises. A franchise login (or any sub-admin)
+// must never reach these routes - they control commissions, fees and payouts.
+router.use('/franchise', (req, _res, next) =>
+    (isSuperAdminLike(req.adminContext)
+        ? next()
+        : next(new ForbiddenError('Only super admins can manage franchises'))));
+// Money / configuration writes: platform super admin only, rate limited, audited in the services
+const fin = [franchiseFinanceController.requireFinanceAdmin, financeWriteRateLimiter];
+const F = franchiseFinanceController;
+
+router.get('/franchise/applications/stats', franchiseAdminController.getStatsController);
+router.get('/franchise/applications', franchiseAdminController.getApplicationsController);
+router.post('/franchise/applications', fin, franchiseAdminController.createApplicationController);
+router.get('/franchise/applications/:id', franchiseAdminController.getApplicationByIdController);
+router.get('/franchise/applications/:id/analytics', franchiseAdminController.getAnalyticsController);
+router.get('/franchise/applications/:id/overview', franchiseAdminController.getOverviewController);
+router.get('/franchise/taxi-zones', franchiseAdminController.getTaxiZonesController);
+router.get('/franchise/applications/:id/taxi/overview', franchiseAdminController.getTaxiOverviewController);
+router.get('/franchise/applications/:id/taxi/rides', franchiseAdminController.getTaxiRidesController);
+router.get('/franchise/applications/:id/taxi/drivers', franchiseAdminController.getTaxiDriversController);
+router.get('/franchise/applications/:id/taxi/bus', franchiseAdminController.getTaxiBusController);
+router.get('/franchise/applications/:id/restaurants', franchiseAdminController.getFranchiseRestaurantsController);
+router.get('/franchise/applications/:id/orders', franchiseAdminController.getFranchiseOrdersController);
+router.get('/franchise/applications/:id/ledger', franchiseAdminController.getFranchiseLedgerController);
+router.patch('/franchise/applications/:id/profile', fin, franchiseAdminController.updateFranchiseProfileController);
+router.post('/franchise/applications/:id/suspend', fin, franchiseAdminController.suspendFranchiseController);
+router.post('/franchise/applications/:id/activate', fin, franchiseAdminController.activateFranchiseController);
+router.post('/franchise/applications/:id/terminate', fin, franchiseAdminController.terminateFranchiseController);
+router.post('/franchise/applications/:id/restore', fin, franchiseAdminController.restoreFranchiseController);
+router.post('/franchise/applications/:id/territory', fin, franchiseAdminController.changeTerritoryController);
+router.patch('/franchise/applications/:id/status', fin, franchiseAdminController.updateStatusController);
+router.post('/franchise/applications/:id/requests/:requestId', fin, franchiseAdminController.decideFranchiseRequestController);
+router.post('/franchise/applications/:id/subadmin', fin, franchiseAdminController.syncSubAdminController);
+router.patch('/franchise/applications/:id/commission', fin, franchiseAdminController.updateCommissionController);
+router.post('/franchise/applications/:id/support-messages/:messageId/reply', franchiseAdminController.replySupportMessageController);
+router.delete('/franchise/applications/:id', fin, franchiseAdminController.deleteApplicationController);
+
+router.get('/franchise/form-config', franchiseAdminController.getFormConfigController);
+router.put('/franchise/form-config', fin, franchiseAdminController.updateFormConfigController);
+
+// ----- Franchise finance (earnings, commission, fees, deposit) -----
+router.get('/franchise/finance/summary', F.getFinanceSummary);
+router.get('/franchise/applications/:id/finance', F.getFranchiseFinance);
+router.get('/franchise/applications/:id/finance/entries', F.getFinanceEntries);
+router.get('/franchise/applications/:id/charges', F.listCharges);
+router.get('/franchise/applications/:id/commission/effective', F.getEffectiveRates);
+router.get('/franchise/applications/:id/audit', F.getAuditLog);
+router.get('/franchise/applications/:id/reconcile', F.getReconciliation);
+router.post('/franchise/charges/:chargeId/confirm-payment', fin, F.confirmChargePayment);
+router.post('/franchise/charges/:chargeId/waive', fin, F.waiveCharge);
+router.patch('/franchise/charges/:chargeId', fin, F.updateChargeAmount);
+router.post('/franchise/charges/:chargeId/refund', fin, F.refundDeposit);
+router.post('/franchise/charges/:chargeId/deduct', fin, F.deductDeposit);
+router.get('/franchise/commission-rules/:scope', F.listRuleVersions);
+router.get('/franchise/commission-rules/:scope/:scopeId', F.listRuleVersions);
+router.post('/franchise/commission-rules/:scope', fin, F.createRuleVersion);
+router.post('/franchise/commission-rules/:scope/:scopeId', fin, F.createRuleVersion);
+router.get('/franchise/territories', F.listTerritories);
+router.get('/franchise/territories/zones', F.listZoneOptions);
+router.post('/franchise/territories', fin, F.createTerritory);
+router.patch('/franchise/territories/:territoryId', fin, F.updateTerritory);
 
 router.get('/admin-management/permissions', requireFoodResourceAccess('subadmins', 'subadmins'), subadminController.listFoodAdminPermissions);
 router.get('/admin-management/assignable-zones', requireFoodResourceAccess('subadmins', 'subadmins'), subadminController.listAssignableFoodZones);
