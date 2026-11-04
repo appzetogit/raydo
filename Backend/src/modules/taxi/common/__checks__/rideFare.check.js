@@ -8,7 +8,7 @@
  * these pin that it charges exactly what that calculation did.
  */
 import assert from 'node:assert/strict';
-import { computeRideFare } from '../rideFare.js';
+import { computeRideFare, isNightFareTime } from '../rideFare.js';
 
 // Production price rows (taxisetprices), trimmed to the fields that price a ride.
 const bike = { base_price: 20, base_distance: 2, price_per_distance: 8, time_price: 1, service_tax: 5, admin_commision: 5, admin_commision_type: 0 };
@@ -67,5 +67,27 @@ assert.equal(computeRideFare({ pricingRule: bike, transportType: 'intercity', di
 f = fare(bike, 'abc', -5);
 assert.equal(f.total, 26);
 assert.ok(Number.isFinite(fare(bike, 4000, 'x').total));
+
+// --- minimum fare and night fare ------------------------------------------
+const NOON = new Date('2026-11-04T06:30:00Z'); // 12:00 in India
+const NIGHT = new Date('2026-11-04T18:30:00Z'); // 00:00 in India
+const card = { base_price: 20, base_distance: 2, price_per_distance: 10, time_price: 0 };
+const at = (rule, when, meters = 1000) => computeRideFare({ pricingRule: rule, distanceMeters: meters, durationMinutes: 0, at: when });
+
+assert.equal(at(card, NIGHT).total, 20, 'with the extras off a fare is unchanged, day or night');
+assert.equal(at({ ...card, min_fare: 50 }, NOON).total, 50, 'raised to the minimum fare');
+assert.equal(at({ ...card, min_fare: 50 }, NOON).minFareTopUp, 30);
+assert.equal(at({ ...card, min_fare: 10 }, NOON).total, 20, 'a minimum below the fare changes nothing');
+assert.equal(at({ ...card, night_fare_percent: 25 }, NOON).total, 20, 'no night charge by day');
+assert.equal(at({ ...card, night_fare_percent: 25 }, NIGHT).total, 25, 'night charge past midnight, India time');
+assert.equal(at({ ...card, min_fare: 40, night_fare_percent: 25 }, NIGHT).total, 50, 'night applies after the minimum');
+assert.equal(at({ ...card, service_tax: 10, night_fare_percent: 50 }, NIGHT).total, 33, 'tax is on the night fare');
+assert.equal(at({ ...card, night_fare_percent: 25, night_fare_start: '11:00', night_fare_end: '13:00' }, NOON).total, 25, 'same-day window');
+assert.equal(isNightFareTime({ night_fare_start: '11:00', night_fare_end: '13:00' }, NIGHT), false);
+assert.equal(computeRideFare({ pricingRule: { ...auto, min_fare: 900, night_fare_percent: 50 }, transportType: 'intercity', distanceMeters: 8000, durationMinutes: 0, at: NIGHT }).nightCharge, 0, 'outstation is exempt');
+
+const extras = computeRideFare({ pricingRule: { ...card, service_tax: 5, min_fare: 33, night_fare_percent: 17 }, distanceMeters: 1000, durationMinutes: 0, at: NIGHT });
+const printedRows = extras.baseFare + extras.minFareTopUp + extras.nightCharge + extras.serviceTax + extras.platformFee + extras.roundOff;
+assert.equal(Math.round(printedRows * 100) / 100, extras.total, 'the printed rows still add up');
 
 console.log('All ride-fare checks passed.');

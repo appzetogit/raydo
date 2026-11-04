@@ -1800,6 +1800,14 @@ const serializeSetPrice = (item) => ({
   outstation_time_price: item.outstation_time_price ?? 0,
   free_waiting_before: item.free_waiting_before,
   free_waiting_after: item.free_waiting_after,
+  min_fare: item.min_fare ?? 0,
+  waiting_max_charge: item.waiting_max_charge ?? 0,
+  night_fare_percent: item.night_fare_percent ?? 0,
+  night_fare_start: item.night_fare_start || '22:00',
+  night_fare_end: item.night_fare_end || '06:00',
+  long_pickup_free_km: item.long_pickup_free_km ?? 0,
+  long_pickup_price_per_km: item.long_pickup_price_per_km ?? 0,
+  long_pickup_max_charge: item.long_pickup_max_charge ?? 0,
 
   // Settings
   enable_airport_ride: Boolean(item.enable_airport_ride),
@@ -6609,6 +6617,14 @@ export const createSetPrice = async (payload, currentAdmin = null) => {
     outstation_time_price: Number(payload.outstation_time_price ?? 0),
     free_waiting_before: Number(payload.free_waiting_before ?? 0),
     free_waiting_after: Number(payload.free_waiting_after ?? 0),
+    min_fare: Math.max(0, Number(payload.min_fare ?? 0)),
+    waiting_max_charge: Math.max(0, Number(payload.waiting_max_charge ?? 0)),
+    night_fare_percent: Math.max(0, Number(payload.night_fare_percent ?? 0)),
+    night_fare_start: String(payload.night_fare_start || '22:00'),
+    night_fare_end: String(payload.night_fare_end || '06:00'),
+    long_pickup_free_km: Math.max(0, Number(payload.long_pickup_free_km ?? 0)),
+    long_pickup_price_per_km: Math.max(0, Number(payload.long_pickup_price_per_km ?? 0)),
+    long_pickup_max_charge: Math.max(0, Number(payload.long_pickup_max_charge ?? 0)),
 
     enable_shared_ride: Number(payload.enable_shared_ride ?? (payload.enable_ride_sharing ? 1 : 0)),
     enable_ride_sharing: payload.enable_ride_sharing ?? !!payload.enable_shared_ride,
@@ -6665,6 +6681,8 @@ export const updateSetPrice = async (id, payload, currentAdmin = null) => {
     'waiting_charge', 'ride_surge_amount', 'outstation_base_price', 'outstation_base_distance',
     'outstation_price_per_distance', 'outstation_time_price',
     'free_waiting_before', 'free_waiting_after',
+    'min_fare', 'waiting_max_charge', 'night_fare_percent', 'night_fare_start', 'night_fare_end',
+    'long_pickup_free_km', 'long_pickup_price_per_km', 'long_pickup_max_charge',
     'enable_shared_ride', 'enable_ride_sharing', 'price_per_seat',
     'shared_price_per_distance', 'shared_cancel_fee',
     'user_cancellation_fee', 'driver_cancellation_fee', 'cancellation_fee_goes_to',
@@ -8977,17 +8995,17 @@ export const getRentalTrackingDashboard = async () => {
       paginator: {
         current_page: 1,
         data: results,
-        first_page_url: "https://k9rides.onrender.com/api/v1/admin/goods-types?page=1",
+        first_page_url: "https://raydo.in/api/v1/admin/goods-types?page=1",
         from: 1,
         last_page: 1,
-        last_page_url: "https://k9rides.onrender.com/api/v1/admin/goods-types?page=1",
+        last_page_url: "https://raydo.in/api/v1/admin/goods-types?page=1",
         links: [
           { url: null, label: "&laquo; Previous", active: false },
-          { url: "https://k9rides.onrender.com/api/v1/admin/goods-types?page=1", label: "1", active: true },
+          { url: "https://raydo.in/api/v1/admin/goods-types?page=1", label: "1", active: true },
           { url: null, label: "Next &raquo;", active: false }
         ],
         next_page_url: null,
-        path: "https://k9rides.onrender.com/api/v1/admin/goods-types",
+        path: "https://raydo.in/api/v1/admin/goods-types",
         per_page: 50,
         prev_page_url: null,
         to: results.length,
@@ -9078,10 +9096,10 @@ export const getRentalTrackingDashboard = async () => {
         to: results.length,
         links: [
           { url: null, label: "&laquo; Previous", active: false },
-          { url: "https://k9rides.onrender.com/api/v1/admin/rental-package-types?page=1", label: "1", active: true },
+          { url: "https://raydo.in/api/v1/admin/rental-package-types?page=1", label: "1", active: true },
           { url: null, label: "Next &raquo;", active: false }
         ],
-        path: "https://k9rides.onrender.com/api/v1/admin/rental-package-types"
+        path: "https://raydo.in/api/v1/admin/rental-package-types"
       }
     };
   };

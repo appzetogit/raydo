@@ -105,6 +105,7 @@ import {
   getIntercityTrips,
   getReferralTranslations,
   getGeneralSettingsCategory,
+  getTaxiTaxReportData,
   getLandingPageSettings,
   getRentalPackageTypes,
   getLanguages,
@@ -241,6 +242,7 @@ adminRouter.get('/admin/status', getAdminStatus);
 adminRouter.post('/admin/forgot-password', forgotPassword);
 adminRouter.post('/admin/verify-reset-otp', verifyResetOtp);
 adminRouter.post('/admin/reset-password', resetPassword);
+adminRouter.get('/admin/tax-report', getTaxiTaxReportData);
 adminRouter.get('/admin/general-settings/:category', getGeneralSettingsCategory);
 adminRouter.get('/admin/countries', getCountries);
 adminRouter.get('/admin/service-locations', getServiceLocations);

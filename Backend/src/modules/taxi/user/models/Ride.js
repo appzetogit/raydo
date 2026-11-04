@@ -264,6 +264,25 @@ const rideSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    // Tax (GST) included in the fare, stamped when the ride completes (see services/taxiTaxService.js).
+    tax: {
+      rate: { type: Number, default: 0, min: 0 },
+      label: { type: String, default: '' },
+      amount: { type: Number, default: 0, min: 0 },
+      mode: { type: String, default: 'included' },
+      calculatedAt: { type: Date, default: null },
+    },
+    // Billed once at acceptance, when the driver's distance from pickup is known.
+    longPickupChargeAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    longPickupKm: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     distanceChargeAmount: {
       type: Number,
       default: 0,
@@ -586,6 +605,12 @@ const rideSchema = new mongoose.Schema(
         default: 0,
         min: 0,
       },
+      waiting_max_charge: { type: Number, default: 0, min: 0 },
+      long_pickup_free_km: { type: Number, default: 0, min: 0 },
+      long_pickup_price_per_km: { type: Number, default: 0, min: 0 },
+      long_pickup_max_charge: { type: Number, default: 0, min: 0 },
+      min_fare_top_up_amount: { type: Number, default: 0, min: 0 },
+      night_charge_amount: { type: Number, default: 0, min: 0 },
       time_price: {
         type: Number,
         default: 0,

@@ -189,7 +189,7 @@ const getFrontendBaseUrl = () => {
     .map((value) => value.trim())
     .find((value) => value && value !== '*');
 
-  return (configuredOrigin || 'https://k9rides.onrender.com').replace(/\/+$/, '');
+  return (configuredOrigin || 'https://raydo.in').replace(/\/+$/, '');
 };
 
 const getPhonePeBaseUrl = (environment = 'test') => (

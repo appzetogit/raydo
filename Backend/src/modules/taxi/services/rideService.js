@@ -25,6 +25,7 @@ import { applyPromoToRideInTransaction } from './promoService.js';
 import { getTipSettings } from './appSettingsService.js';
 import { getBidRideSettings } from './transportSettingsService.js';
 import { computeRideFare } from '../common/rideFare.js';
+import { stampRideTax } from './taxiTaxService.js';
 import { resolveWeightSlot } from './weightSlotService.js';
 import { pickSurgeSlot, surgeFromPercent } from '../common/surgeSlot.js';
 import { SurgeSlot } from '../admin/models/SurgeSlot.js';
@@ -1434,6 +1435,12 @@ export const createRideRecord = async ({
     waiting_charge: Math.max(0, Number(pricingRule?.waiting_charge ?? 0)),
     free_waiting_before: Math.max(0, Number(pricingRule?.free_waiting_before ?? 0)),
     free_waiting_after: Math.max(0, Number(pricingRule?.free_waiting_after ?? 0)),
+    waiting_max_charge: Math.max(0, Number(pricingRule?.waiting_max_charge ?? 0)),
+    long_pickup_free_km: Math.max(0, Number(pricingRule?.long_pickup_free_km ?? 0)),
+    long_pickup_price_per_km: Math.max(0, Number(pricingRule?.long_pickup_price_per_km ?? 0)),
+    long_pickup_max_charge: Math.max(0, Number(pricingRule?.long_pickup_max_charge ?? 0)),
+    min_fare_top_up_amount: Number(fareQuote?.minFareTopUp || 0),
+    night_charge_amount: Number(fareQuote?.nightCharge || 0),
     time_price: normalizedTransportType === 'intercity' && pricingRule?.outstation_time_price !== undefined && pricingRule?.outstation_time_price !== null
       ? Math.max(0, Number(pricingRule.outstation_time_price ?? 0))
       : Math.max(0, Number(pricingRule?.time_price ?? 0)),
@@ -1757,6 +1764,7 @@ export const serializeRideRealtime = (ride) => ({
   fare: ride.fare,
   baseFare: Number(ride.baseFare || ride.fare || 0),
   waitingChargeAmount: Number(ride.waitingChargeAmount || 0),
+  longPickupChargeAmount: Number(ride.longPickupChargeAmount || 0),
   distanceChargeAmount: Number(ride.distanceChargeAmount || 0),
   timeChargeAmount: Number(ride.timeChargeAmount || 0),
   additionalCharge: Number(ride.additionalCharge || 0),
@@ -2005,6 +2013,7 @@ export const listRideHistoryForIdentity = async ({ role, entityId, limit = 50, p
       'commissionAmount',
       'driverEarnings',
       'waitingChargeAmount',
+      'longPickupChargeAmount',
       'distanceChargeAmount',
       'timeChargeAmount',
       'additionalCharge',
@@ -2080,6 +2089,7 @@ export const listRideHistoryForIdentity = async ({ role, entityId, limit = 50, p
       commissionAmount: ride.commissionAmount,
       driverEarnings: ride.driverEarnings,
       waitingChargeAmount: Number(ride.waitingChargeAmount || 0),
+      longPickupChargeAmount: Number(ride.longPickupChargeAmount || 0),
       distanceChargeAmount: Number(ride.distanceChargeAmount || 0),
       timeChargeAmount: Number(ride.timeChargeAmount || 0),
       additionalCharge: Number(ride.additionalCharge || 0),
@@ -2200,6 +2210,7 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
       if (isPooling) {
         ride.isPoolRide = true;
       }
+      applyLongPickupCharge(ride, driver);
       driver.isOnRide = !isRideScheduledForFuture(ride);
 
       // Driver unification: claim the cross-service busy-lock so this driver cannot also be
@@ -2284,7 +2295,54 @@ const computeRideWaitingCharge = (ride) => {
   const waitedMinutes = Number.isFinite(waitedMs) ? Math.max(0, Math.ceil(waitedMs / 60000)) : 0;
 
   // Whole rupees, so the completed fare stays a whole rupee.
-  return Math.round(Math.max(0, waitedMinutes - freeMinutes) * ratePerMinute);
+  const charge = Math.round(Math.max(0, waitedMinutes - freeMinutes) * ratePerMinute);
+  const cap = Math.max(0, Number(ride.pricingSnapshot?.waiting_max_charge ?? 0));
+  return cap > 0 ? Math.min(charge, cap) : charge;
+};
+
+/*
+ * The rider pays per km once the driver starts farther from pickup than the free
+ * distance. Only known at acceptance, so it is billed then, once and capped, and
+ * completion adds it back onto the agreed fare. A scheduled ride is skipped: the
+ * driver is not setting off from where they accepted it.
+ */
+export const computeLongPickupCharge = ({ snapshot, driverCoordinates, pickupCoordinates }) => {
+  const rate = Math.max(0, Number(snapshot?.long_pickup_price_per_km ?? 0));
+  if (!(rate > 0) || !Array.isArray(driverCoordinates) || !Array.isArray(pickupCoordinates)) {
+    return { km: 0, amount: 0 };
+  }
+  if (driverCoordinates.length !== 2 || pickupCoordinates.length !== 2) {
+    return { km: 0, amount: 0 };
+  }
+
+  const toRad = (d) => (Number(d) * Math.PI) / 180;
+  const [lng1, lat1] = driverCoordinates;
+  const [lng2, lat2] = pickupCoordinates;
+  const a = Math.sin(toRad(lat2 - lat1) / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(toRad(lng2 - lng1) / 2) ** 2;
+  const km = 2 * 6371 * Math.asin(Math.sqrt(a));
+  if (!Number.isFinite(km)) return { km: 0, amount: 0 };
+
+  const extraKm = Math.max(0, km - Math.max(0, Number(snapshot?.long_pickup_free_km ?? 0)));
+  const cap = Math.max(0, Number(snapshot?.long_pickup_max_charge ?? 0));
+  // Whole rupees, like the rest of a ride's fare.
+  const charge = Math.round(extraKm * rate);
+  return { km: roundRideMoney(km), amount: cap > 0 ? Math.min(charge, cap) : charge };
+};
+
+const applyLongPickupCharge = (ride, driver) => {
+  if (ride.isPoolRide || isRideScheduledForFuture(ride) || Number(ride.longPickupChargeAmount || 0) > 0) {
+    return;
+  }
+  const { km, amount } = computeLongPickupCharge({
+    snapshot: ride.pricingSnapshot,
+    driverCoordinates: driver?.location?.coordinates,
+    pickupCoordinates: ride.pickupLocation?.coordinates,
+  });
+  if (!(amount > 0)) return;
+  ride.longPickupKm = km;
+  ride.longPickupChargeAmount = amount;
+  ride.fare = roundRideMoney(Number(ride.fare || 0) + amount);
 };
 
 /*
@@ -2536,7 +2594,8 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
     // Ride insurance is charged now, on a ride that actually ran.
     const insuranceFee = roundRideMoney(Math.max(0, Number(ride.pricingSnapshot?.insurance?.premium || 0)));
     ride.insurance_fee = insuranceFee;
-    ride.fare = roundRideMoney(agreedFare + waitingCharge + adminAdditionalCharge + recoveredDue + insuranceFee);
+    const longPickupCharge = roundRideMoney(Math.max(0, Number(ride.longPickupChargeAmount || 0)));
+    ride.fare = roundRideMoney(agreedFare + waitingCharge + longPickupCharge + adminAdditionalCharge + recoveredDue + insuranceFee);
   }
 
   /*
@@ -2547,6 +2606,11 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
    * of that QR (driverController.refreshDriverPaymentCollection). An online
    * ride's collection is only ever written by the server.
    */
+  // The fare is final here, so the tax included in it can be fixed now.
+  if (nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
+    await stampRideTax(ride);
+  }
+
   if (driverPaymentCollection && normalizeRidePaymentMethod(ride.paymentMethod) === 'cash') {
     ride.driverPaymentCollection = driverPaymentCollection;
   }
@@ -2944,6 +3008,7 @@ export const acceptRideBidAssignment = async ({ rideId, bidId, userId }) => {
       ride.liveStatus = RIDE_LIVE_STATUS.ACCEPTED;
       ride.biddingStatus = 'accepted';
       ride.acceptedAt = new Date();
+      applyLongPickupCharge(ride, driver);
       driver.isOnRide = !isRideScheduledForFuture(ride);
       bid.status = 'accepted';
 

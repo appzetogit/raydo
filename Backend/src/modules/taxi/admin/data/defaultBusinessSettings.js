@@ -95,6 +95,7 @@ export const createDefaultBusinessSettings = () => ({
     user_bidding_amount_increase_or_decrease: '10',
     user_fare_increase_wait_minutes: '2',
   },
+  tax: { enabled: false, rate: 0, label: 'GST', gstin: '' },
   instant_pooling: {
     enable: '1',
     max_radius_meters: '5000',

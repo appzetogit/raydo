@@ -438,7 +438,7 @@ export default function LocationSelectorOverlay({ isOpen, onClose }) {
     location?.accuracy || null,
   ])
 
-  // Initialize Google Maps with Loader (K9 Rides-STYLE)
+  // Initialize Google Maps with Loader (Raydo-STYLE)
   useEffect(() => {
     if (!MAPS_ENABLED) {
       // Maps disabled: ensure loading spinner is off and rely on coordinates-only UX

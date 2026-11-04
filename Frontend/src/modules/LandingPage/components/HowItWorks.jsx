@@ -1,53 +1,45 @@
-import { Smartphone, MapPin, CheckCircle2, ShieldCheck, BadgeIndianRupee, Headphones, Navigation } from 'lucide-react'
-
-const STEPS = [
-  { Icon: Smartphone, title: 'Open Raydo', body: 'Sign in with your phone number in seconds.' },
-  { Icon: MapPin, title: 'Choose ride or food', body: 'Set your pickup and drop, or pick a restaurant and dishes.' },
-  { Icon: CheckCircle2, title: 'Track it live', body: 'Follow your driver or rider on the map until you arrive or your food does.' },
+const STOPS = [
+  { title: 'Sign in with your phone', body: 'One OTP and you are in. No password to remember.' },
+  { title: 'Pick a ride or a restaurant', body: 'Set your pickup and drop, or fill your cart. You see the price before you confirm.' },
+  { title: 'Follow it on the map', body: 'Your driver or delivery rider, live, until you have arrived or dinner has.' },
 ]
 
 const PROMISES = [
-  { Icon: ShieldCheck, title: 'Safety first', body: 'Verified drivers, trip sharing and an in-app SOS button.' },
-  { Icon: BadgeIndianRupee, title: 'Upfront prices', body: 'See the fare or the bill before you confirm. No surprises.' },
-  { Icon: Navigation, title: 'Live tracking', body: 'Real-time location for every ride and every delivery.' },
-  { Icon: Headphones, title: 'Real support', body: 'Help when something goes wrong, right from the app.' },
+  { title: 'Verified drivers', body: 'Share your trip with family, and reach SOS from inside the ride.' },
+  { title: 'Pay your way', body: 'UPI, cards, wallet or cash.' },
+  { title: 'Help in the app', body: 'Raise it from the app when something goes wrong.' },
 ]
 
 export default function HowItWorks() {
   return (
-    <section id="how" className="scroll-mt-20 bg-raydo-50/50 py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-raydo-700">How it works</p>
-          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-raydo-ink sm:text-5xl">Three taps and you're set</h2>
-        </div>
+    <section id="how" className="scroll-mt-[4.5rem] bg-[var(--rd-paper)] py-20 lg:py-28">
+      <div className="mx-auto grid max-w-[90rem] gap-14 px-4 sm:px-8 lg:grid-cols-2">
+        <h2 className="rd-display rd-section-title">
+          Three stops.
+          <br />
+          That is the trip.
+        </h2>
 
-        <ol className="mt-16 grid gap-6 md:grid-cols-3">
-          {STEPS.map(({ Icon, title, body }, i) => (
-            <li key={title} className="relative rounded-3xl bg-white p-8 shadow-[0_12px_40px_rgba(253,15,109,0.08)]">
-              <span className="absolute right-6 top-5 font-[Outfit] text-6xl font-extrabold text-raydo-100">{i + 1}</span>
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-raydo-500 text-raydo-ink">
-                <Icon className="h-6 w-6" />
-              </span>
-              <h3 className="mt-6 text-xl font-semibold text-raydo-ink">{title}</h3>
-              <p className="mt-2 text-gray-600">{body}</p>
+        <ol className="rd-stops ml-6 space-y-12 pb-1">
+          {STOPS.map(({ title, body }, i) => (
+            <li key={title} className="relative pl-12">
+              <span className="rd-stop-number rd-display">{i + 1}</span>
+              <h3 className="text-2xl font-bold">{title}</h3>
+              <p className="mt-2 max-w-md text-lg text-[var(--rd-muted)]">{body}</p>
             </li>
           ))}
         </ol>
+      </div>
 
-        <div className="mt-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {PROMISES.map(({ Icon, title, body }) => (
-            <div key={title} className="flex gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-raydo-700 shadow-sm">
-                <Icon className="h-5 w-5" />
-              </span>
-              <div>
-                <h3 className="font-semibold text-raydo-ink">{title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-gray-600">{body}</p>
-              </div>
+      <div className="mx-auto mt-20 max-w-[90rem] px-4 sm:px-8">
+        <dl className="grid gap-8 border-t-[3px] border-[var(--rd-black)] pt-8 md:grid-cols-3">
+          {PROMISES.map(({ title, body }) => (
+            <div key={title}>
+              <dt className="text-xl font-bold">{title}</dt>
+              <dd className="mt-1 max-w-xs text-[var(--rd-muted)]">{body}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </div>
     </section>
   )

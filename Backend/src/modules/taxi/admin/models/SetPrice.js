@@ -180,6 +180,15 @@ const setPriceSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // Rate card extras. 0 switches each one off.
+    min_fare: { type: Number, default: 0 },
+    waiting_max_charge: { type: Number, default: 0 },
+    night_fare_percent: { type: Number, default: 0 },
+    night_fare_start: { type: String, default: '22:00', trim: true },
+    night_fare_end: { type: String, default: '06:00', trim: true },
+    long_pickup_free_km: { type: Number, default: 0 },
+    long_pickup_price_per_km: { type: Number, default: 0 },
+    long_pickup_max_charge: { type: Number, default: 0 },
     outstation_base_price: {
       type: Number,
       default: 0,

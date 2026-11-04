@@ -11,6 +11,8 @@
  * The rules, exactly as the booking has always charged them:
  *   - Within the base distance the fare is the base price alone.
  *   - Past it: base + (km past the base) x per-km + minutes x per-minute.
+ *   - Raised to the row's minimum fare, then its night percentage on top while
+ *     the night window runs (India time). Neither applies to outstation rides.
  *   - Service tax on that subtotal, then the platform fee on top, untaxed.
  *   - Rounded to a whole rupee, then the zone's surge (also whole rupees) added,
  *     so the total a rider is charged never carries paise.
@@ -20,8 +22,17 @@
  * a figure the app sent.
  */
 import { resolvePlatformFee } from './platformFee.js';
+import { localClock, parseTime } from './surgeSlot.js';
 
 const money = (value) => Math.round(value * 100) / 100;
+
+/** A window whose end is at or before its start runs past midnight. 22:00-06:00 is the default. */
+export function isNightFareTime(pricingRule, at = new Date()) {
+    const start = parseTime(pricingRule?.night_fare_start) ?? parseTime('22:00');
+    const end = parseTime(pricingRule?.night_fare_end) ?? parseTime('06:00');
+    const { minute } = localClock(at);
+    return start > end ? (minute >= start || minute < end) : (minute >= start && minute < end);
+}
 
 export function computeRideFare({
     pricingRule,
@@ -33,6 +44,7 @@ export function computeRideFare({
     // slot). It is part of the subtotal, so tax and the platform fee apply to it
     // exactly as they do to the base.
     extraAmount = 0,
+    at = new Date(),
 } = {}) {
     if (!pricingRule) return null;
 
@@ -53,8 +65,16 @@ export function computeRideFare({
 
     const distanceFare = withinBase ? 0 : Math.max(0, distanceKm - baseDistanceKm) * perKm;
     const timeFare = withinBase ? 0 : minutes * perMinute;
-    const subtotal = basePrice + weightCharge + distanceFare + timeFare;
-    if (!(subtotal > 0)) return null;
+    const meteredSubtotal = basePrice + weightCharge + distanceFare + timeFare;
+    if (!(meteredSubtotal > 0)) return null;
+
+    const minFare = isIntercity ? 0 : Math.max(0, Number(pricingRule.min_fare) || 0);
+    const minFareTopUp = Math.max(0, minFare - meteredSubtotal);
+    const nightPercent = isIntercity ? 0 : Math.max(0, Number(pricingRule.night_fare_percent) || 0);
+    const nightCharge = nightPercent > 0 && isNightFareTime(pricingRule, at)
+        ? ((meteredSubtotal + minFareTopUp) * nightPercent) / 100
+        : 0;
+    const subtotal = meteredSubtotal + minFareTopUp + nightCharge;
 
     const serviceTax = (subtotal * serviceTaxPercent) / 100;
     const platformFee = resolvePlatformFee(pricingRule, subtotal);
@@ -70,6 +90,8 @@ export function computeRideFare({
         weightCharge: money(weightCharge),
         distanceFare: money(distanceFare),
         timeFare: money(timeFare),
+        minFareTopUp: money(minFareTopUp),
+        nightCharge: money(nightCharge),
         serviceTax: money(serviceTax),
         platformFee: money(platformFee),
         platformFeeGst: money(platformFeeGst),

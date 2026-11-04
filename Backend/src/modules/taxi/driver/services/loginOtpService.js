@@ -86,16 +86,12 @@ const getStaticDriverOtpConfig = () => ({
   otp: String(env.sms?.staticOtpCode || TEST_LOGIN_OTP_CODE).trim(),
 });
 // Fixed dummy OTP for a small, explicit set of QA / app-review test numbers.
-// Unlike the NODE_ENV-gated static paths below this applies in production, but it
-// is scoped to these numbers only and SMS is suppressed for them (isStatic: true).
+// Never in production, where a known code is a sign-in bypass; SMS suppressed (isStatic).
 const DUMMY_OTP_PHONES = ['7470311228', '8120743311', '7470311226', '7470311227', '7470311229'];
 const DUMMY_OTP_CODE = '1234';
 
 const resolveDriverLoginOtpForPhone = (phone) => {
   const normalizedPhone = normalizePhone(phone);
-  if (DUMMY_OTP_PHONES.includes(normalizedPhone)) {
-    return { otp: DUMMY_OTP_CODE, isStatic: true };
-  }
   const staticOtpConfig = getStaticDriverOtpConfig();
   const defaultOtpEnabled = isTruthy(env.sms?.useDefaultOtp);
 
@@ -105,6 +101,10 @@ const resolveDriverLoginOtpForPhone = (phone) => {
   // default, and USE_DEFAULT_OTP gave every driver the static code. Production
   // always gets a random OTP now -- the same rule the customer flow follows.
   if (process.env.NODE_ENV !== 'production') {
+    if (DUMMY_OTP_PHONES.includes(normalizedPhone)) {
+      return { otp: DUMMY_OTP_CODE, isStatic: true };
+    }
+
     if (defaultOtpEnabled && staticOtpConfig.otp) {
       return {
         otp: staticOtpConfig.otp,

@@ -65,7 +65,7 @@ const ComingSoon = () => {
   const { settings } = useSettings();
   const appName = settings.general?.app_name || 'App';
   const meta = FEATURE_META[location.pathname] || DEFAULT_META;
-  const subtitle = String(meta.subtitle || '').replace(/K9 Rides/gi, appName);
+  const subtitle = String(meta.subtitle || '').replace(/Raydo/gi, appName);
 
   return (
     <div className="min-h-screen bg-white max-w-lg mx-auto flex flex-col font-sans">

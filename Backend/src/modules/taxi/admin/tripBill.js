@@ -38,6 +38,7 @@ export function buildTripBill(ride) {
 
     const surge = money(snap.ride_surge_amount);
     const waiting = money(ride?.waitingChargeAmount);
+    const longPickup = money(ride?.longPickupChargeAmount);
     const insurance = money(ride?.insurance_fee);
     const previousCancellation = money(ride?.recovered_cancellation_due);
     const promo = money(snap.promo_discount_applied ?? ride?.promo?.discount_amount);
@@ -69,6 +70,7 @@ export function buildTripBill(ride) {
             tripFare,
             surge,
             waiting,
+            longPickup,
             serviceTax,
             platformFee,
             platformFeeGst,

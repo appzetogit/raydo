@@ -68,7 +68,7 @@ const Onboarding = () => {
 
   const slide = slides[current];
   const isLast = current === slides.length - 1;
-  const slideBody = String(slide?.body || '').replace(/K9 Rides/gi, appName);
+  const slideBody = String(slide?.body || '').replace(/Raydo/gi, appName);
 
   const variants = {
     enter:  (dir) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),

@@ -1,92 +1,45 @@
-import { CarFront, Bike, Package, Plane, UtensilsCrossed, Store, Clock3, ArrowRight, ShieldCheck, Wallet } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
-const SERVICES = [
+const LANES = [
   {
     id: 'rides',
-    eyebrow: 'Raydo Rides',
-    title: 'Get there, your way.',
-    body: 'Cabs, bikes and autos at upfront prices, with live tracking from pickup to drop.',
+    title: 'Rides',
+    body: 'See the fare before you book, then watch your driver come to you.',
+    items: ['Cabs', 'Autos', 'Bikes', 'Parcels', 'Airport trips', 'Rentals'],
     href: '/taxi/user',
     cta: 'Book a ride',
-    Icon: CarFront,
-    dark: false,
-    features: [
-      { Icon: CarFront, label: 'Cabs & autos' },
-      { Icon: Bike, label: 'Bike rides' },
-      { Icon: Package, label: 'Parcel delivery' },
-      { Icon: Plane, label: 'Airport & rentals' },
-    ],
   },
   {
     id: 'food',
-    eyebrow: 'Raydo Food',
-    title: 'Cravings, delivered.',
-    body: 'Order from the best restaurants near you and follow your food all the way to your door.',
+    title: 'Food',
+    body: 'Order from restaurants near you and follow it from their kitchen to your door.',
+    items: ['Restaurants nearby', 'Live order tracking', 'UPI, cards or cash'],
     href: '/food/user',
     cta: 'Order food',
-    Icon: UtensilsCrossed,
-    dark: true,
-    features: [
-      { Icon: Store, label: 'Top local restaurants' },
-      { Icon: Clock3, label: 'Fast delivery' },
-      { Icon: ShieldCheck, label: 'Hygiene-checked kitchens' },
-      { Icon: Wallet, label: 'UPI, cards & cash' },
-    ],
   },
 ]
 
 export default function Services() {
   return (
-    <section className="bg-white py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-raydo-700">Two services, one app</p>
-          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-raydo-ink sm:text-5xl">
-            Everything you need to move and eat
-          </h2>
-        </div>
-
-        <div className="mt-16 grid gap-6 lg:grid-cols-2">
-          {SERVICES.map(({ id, eyebrow, title, body, href, cta, Icon, dark, features }) => (
-            <article
-              key={id}
-              id={id}
-              className={`group relative scroll-mt-24 overflow-hidden rounded-[2rem] p-8 sm:p-10 ${
-                dark ? 'bg-raydo-ink text-white' : 'bg-linear-to-br from-raydo-500 to-raydo-700 text-white'
-              }`}
-            >
-              <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-              <span
-                className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
-                  dark ? 'bg-raydo-500 text-raydo-ink' : 'bg-white text-raydo-700'
-                }`}
-              >
-                <Icon className="h-7 w-7" />
+    <section className="bg-[var(--rd-black)] text-white">
+      {LANES.map(({ id, title, body, items, href, cta }) => (
+        <div key={id}>
+          <div className="rd-road-line" />
+          <a id={id} href={href} className="rd-lane block scroll-mt-[4.5rem]" aria-label={cta}>
+            <div className="mx-auto grid max-w-[90rem] gap-8 px-4 py-14 sm:px-8 lg:grid-cols-12 lg:items-center lg:py-20">
+              <h2 className="rd-display rd-lane-title lg:col-span-5">{title}</h2>
+              <div className="lg:col-span-5">
+                <p className="max-w-lg text-2xl font-semibold leading-snug">{body}</p>
+                <p className="rd-lane-note mt-5 max-w-lg text-lg text-white/70">{items.join('  /  ')}</p>
+              </div>
+              <span className="flex items-center gap-3 text-xl font-bold lg:col-span-2 lg:justify-end">
+                {cta} <ArrowRight className="h-6 w-6 shrink-0" />
               </span>
-              <p className="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-white/70">{eyebrow}</p>
-              <h3 className="mt-2 font-[Outfit] text-3xl font-bold sm:text-4xl">{title}</h3>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-white/80">{body}</p>
-
-              <ul className="mt-8 grid grid-cols-2 gap-3">
-                {features.map(({ Icon: F, label }) => (
-                  <li key={label} className="flex items-center gap-2.5 rounded-xl bg-white/10 px-3 py-3 text-sm font-medium">
-                    <F className="h-4 w-4 shrink-0" /> {label}
-                  </li>
-                ))}
-              </ul>
-
-              <a
-                href={href}
-                className={`mt-10 inline-flex items-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold transition ${
-                  dark ? 'bg-raydo-500 text-raydo-ink hover:bg-raydo-600' : 'bg-white text-raydo-700 hover:bg-raydo-50'
-                }`}
-              >
-                {cta} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-              </a>
-            </article>
-          ))}
+            </div>
+          </a>
         </div>
-      </div>
+      ))}
+      <div className="rd-road-line" />
     </section>
   )
 }

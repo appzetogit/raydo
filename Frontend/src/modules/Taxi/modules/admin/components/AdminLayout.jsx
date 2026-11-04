@@ -963,6 +963,7 @@ const AdminLayout = () => {
               { label: 'Driver Duty Report', path: '/taxi/admin/reports/driver-duty', permission: 'reports.view' },
               // { label: 'Owner Report', path: '/taxi/admin/reports/owner', permission: 'reports.view' },
               { label: 'Finance Report', path: '/taxi/admin/reports/finance', permission: 'reports.view' },
+              { label: 'Tax Report', path: '/taxi/admin/reports/tax', permission: 'reports.view' },
               { label: 'Fleet Finance Report', path: '/taxi/admin/reports/fleet-finance', permission: 'reports.view' },
             ],
           },
@@ -1001,6 +1002,7 @@ const AdminLayout = () => {
             permission: 'settings.view',
             subItems: [
               { label: 'General Settings', path: '/taxi/admin/settings/business/general', permission: 'settings.view' },
+              { label: 'Tax Settings', path: '/taxi/admin/settings/business/tax', permission: 'settings.view' },
               { label: 'Landing Page CMS', path: '/taxi/admin/settings/cms/home', permission: 'settings.view' },
               { label: 'Customization Settings', path: '/taxi/admin/settings/business/customization', permission: 'settings.view' },
               { label: 'Logo Management', path: '/taxi/admin/settings/business/logos', permission: 'settings.view' },

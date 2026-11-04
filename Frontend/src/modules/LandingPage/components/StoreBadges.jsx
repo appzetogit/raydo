@@ -12,8 +12,8 @@ export default function StoreBadges({ settings, tone = 'dark', className = '' })
 
   const style =
     tone === 'light'
-      ? 'bg-white text-raydo-ink hover:bg-raydo-50'
-      : 'bg-raydo-ink text-white hover:bg-black'
+      ? 'bg-white text-[var(--rd-black)]'
+      : 'bg-[var(--rd-black)] text-white'
 
   return (
     <div className={`flex flex-wrap gap-3 ${className}`}>
@@ -23,7 +23,7 @@ export default function StoreBadges({ settings, tone = 'dark', className = '' })
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className={`inline-flex items-center gap-3 rounded-xl px-5 py-2.5 transition ${style}`}
+          className={`inline-flex items-center gap-3 px-5 py-2.5 ${style}`}
         >
           <Icon className="h-6 w-6" />
           <span className="text-left leading-tight">

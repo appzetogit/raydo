@@ -116,6 +116,14 @@ const initialFormState = {
    ride_surge_amount: '',
    free_waiting_before: '',
    free_waiting_after: '',
+   min_fare: '',
+   waiting_max_charge: '',
+   night_fare_percent: '',
+   night_fare_start: '22:00',
+   night_fare_end: '06:00',
+   long_pickup_free_km: '',
+   long_pickup_price_per_km: '',
+   long_pickup_max_charge: '',
    enable_airport_ride: false,
    support_airport_fee: '',
    airport_surge: '',
@@ -293,6 +301,14 @@ const SetPrices = ({ mode }) => {
             transport_type: normalizeTransportType(formData.transport_type),
             payment_type: normalizePaymentTypes(formData.payment_type).length ? normalizePaymentTypes(formData.payment_type) : ['cash'],
             ride_surge_amount: Number(formData.ride_surge_amount || 0),
+            min_fare: Number(formData.min_fare || 0),
+            waiting_max_charge: Number(formData.waiting_max_charge || 0),
+            night_fare_percent: Number(formData.night_fare_percent || 0),
+            night_fare_start: formData.night_fare_start || '22:00',
+            night_fare_end: formData.night_fare_end || '06:00',
+            long_pickup_free_km: Number(formData.long_pickup_free_km || 0),
+            long_pickup_price_per_km: Number(formData.long_pickup_price_per_km || 0),
+            long_pickup_max_charge: Number(formData.long_pickup_max_charge || 0),
          };
 
          if (!editingId && formData.zone_id === ALL_ZONES_OPTION) {
@@ -688,6 +704,44 @@ const SetPrices = ({ mode }) => {
                                  <label className={labelClass}>Free Waiting Time In Minutes After Start A Ride <span className="text-rose-500">*</span></label>
                                  <input type="number" min="0" required className={inputClass} placeholder="Free Waiting Time In Minutes After Start A Ride" value={formData.free_waiting_after} onChange={e => setFormData(p => ({ ...p, free_waiting_after: e.target.value }))} />
                               </div>
+                           </div>
+
+                           <div className="md:col-span-2 pt-4 border-t border-gray-100">
+                              <h3 className="text-sm font-bold text-[#1E293B] uppercase tracking-wider">Rate Card Extras (0 = off)</h3>
+                           </div>
+                           <div>
+                              <label className={labelClass}>Minimum Fare</label>
+                              <input type="number" min="0" step="any" className={inputClass} placeholder="Minimum fare for any ride" value={formData.min_fare} onChange={e => setFormData(p => ({ ...p, min_fare: e.target.value }))} />
+                           </div>
+                           <div>
+                              <label className={labelClass}>Waiting Charge Maximum</label>
+                              <input type="number" min="0" step="any" className={inputClass} placeholder="Max total waiting charge per ride" value={formData.waiting_max_charge} onChange={e => setFormData(p => ({ ...p, waiting_max_charge: e.target.value }))} />
+                           </div>
+                           <div>
+                              <label className={labelClass}>Night Fare (%)</label>
+                              <input type="number" min="0" step="any" className={inputClass} placeholder="Extra % on fare at night" value={formData.night_fare_percent} onChange={e => setFormData(p => ({ ...p, night_fare_percent: e.target.value }))} />
+                           </div>
+                           <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                 <label className={labelClass}>Night Starts</label>
+                                 <input type="time" className={inputClass} value={formData.night_fare_start} onChange={e => setFormData(p => ({ ...p, night_fare_start: e.target.value }))} />
+                              </div>
+                              <div>
+                                 <label className={labelClass}>Night Ends</label>
+                                 <input type="time" className={inputClass} value={formData.night_fare_end} onChange={e => setFormData(p => ({ ...p, night_fare_end: e.target.value }))} />
+                              </div>
+                           </div>
+                           <div>
+                              <label className={labelClass}>Long Pickup Free Distance (km)</label>
+                              <input type="number" min="0" step="any" className={inputClass} placeholder="Driver distance with no extra charge" value={formData.long_pickup_free_km} onChange={e => setFormData(p => ({ ...p, long_pickup_free_km: e.target.value }))} />
+                           </div>
+                           <div>
+                              <label className={labelClass}>Long Pickup Price Per km</label>
+                              <input type="number" min="0" step="any" className={inputClass} placeholder="Charge per km after free distance" value={formData.long_pickup_price_per_km} onChange={e => setFormData(p => ({ ...p, long_pickup_price_per_km: e.target.value }))} />
+                           </div>
+                           <div>
+                              <label className={labelClass}>Long Pickup Maximum Charge</label>
+                              <input type="number" min="0" step="any" className={inputClass} placeholder="Max long pickup charge" value={formData.long_pickup_max_charge} onChange={e => setFormData(p => ({ ...p, long_pickup_max_charge: e.target.value }))} />
                            </div>
 
                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-12 pt-4">

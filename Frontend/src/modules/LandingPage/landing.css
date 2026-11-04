@@ -1,0 +1,84 @@
+/* The homepage's own look, taken from the logo: flat yellow and black, slanted type, road markings. */
+.rd {
+  --rd-yellow: #ffd400;
+  --rd-black: #0b0b0b;
+  --rd-paper: #f7f3e6;
+  --rd-muted: #5b574a;
+  font-family: 'Barlow', system-ui, sans-serif;
+  color: var(--rd-black);
+  background: var(--rd-black);
+}
+
+.rd-display {
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.rd-hero-title { font-size: clamp(5rem, 15.5vw, 13rem); }
+.rd-section-title { font-size: clamp(3.25rem, 7.5vw, 6.5rem); }
+.rd-lane-title { font-size: clamp(5rem, 13vw, 11rem); }
+.rd-footer-word { font-size: clamp(5.5rem, 26vw, 25rem); line-height: 0.74; }
+
+/* Slanted like the logo's wordmark. The label is straightened back up inside. */
+.rd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.05rem 1.9rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transform: skewX(-10deg);
+  transition: background-color 0.15s, color 0.15s, transform 0.15s;
+}
+.rd-btn > * { transform: skewX(10deg); }
+.rd-btn:hover { transform: skewX(-10deg) translateX(4px); }
+.rd-btn-black { background: var(--rd-black); color: var(--rd-yellow); }
+.rd-btn-yellow { background: var(--rd-yellow); color: var(--rd-black); }
+.rd-btn-line { box-shadow: inset 0 0 0 3px var(--rd-black); color: var(--rd-black); }
+.rd-btn-line:hover { background: var(--rd-black); color: var(--rd-yellow); }
+.rd-btn-line-light { box-shadow: inset 0 0 0 3px #fff; color: #fff; }
+.rd-btn-line-light:hover { background: #fff; color: var(--rd-black); }
+
+/* The dashed centre line of a road. */
+.rd-road-line {
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--rd-yellow) 0 44px, transparent 44px 76px);
+}
+
+.rd-road-dash { animation: rd-drive 2.4s linear infinite; }
+@keyframes rd-drive { to { stroke-dashoffset: -84; } }
+
+.rd-lane { transition: background-color 0.2s, color 0.2s; }
+.rd-lane:hover { background: var(--rd-yellow); color: var(--rd-black); }
+.rd-lane:hover .rd-lane-note { color: var(--rd-black); }
+
+.rd-stops { border-left: 6px dashed var(--rd-black); }
+.rd-stop-number {
+  position: absolute;
+  left: -2.05rem;
+  top: 0;
+  display: flex;
+  height: 3.25rem;
+  width: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--rd-yellow);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.rd a:focus-visible,
+.rd button:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-road-dash { animation: none; }
+  .rd-btn, .rd-btn:hover { transition: none; transform: skewX(-10deg); }
+}

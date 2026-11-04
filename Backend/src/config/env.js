@@ -272,7 +272,7 @@ export const isOriginAllowed = (origin) => {
         .map((value) => value.trim())
         .filter(Boolean);
 
-    const list = allowed.length > 0 ? allowed : ['https://k9rides.onrender.com'];
+    const list = allowed.length > 0 ? allowed : ['https://raydo.in'];
 
     if (list.includes('*') || list.includes(origin)) {
         return true;
@@ -282,8 +282,8 @@ export const isOriginAllowed = (origin) => {
         const url = new URL(origin);
         if (
             url.hostname.endsWith('.vercel.app') ||
-            url.hostname.endsWith('.k9rides.com') ||
-            url.hostname === 'k9rides.com' ||
+            url.hostname.endsWith('.raydo.in') ||
+            url.hostname === 'raydo.in' ||
             // Service-Provider (Homster/Truliq) front-ends. Only the admin panel moves
             // into master's frontend; the user, vendor and worker apps stay on these
             // domains and keep calling this backend through the legacy /api prefixes.

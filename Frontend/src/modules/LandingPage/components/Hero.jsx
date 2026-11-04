@@ -1,91 +1,55 @@
-import { CarFront, UtensilsCrossed, MapPin, Clock3, Star } from 'lucide-react'
-import { RAYDO_MARK, BrandWave } from './Brand'
+import { ArrowRight } from 'lucide-react'
 import StoreBadges from './StoreBadges'
 
-export default function Hero({ settings }) {
-  const title = settings?.hero_title
-  const description =
-    settings?.hero_description ||
-    'Book a ride in seconds or get your favourite food delivered hot. Raydo brings both into one simple app.'
-
+// The logo's road and speed lines, drawn large. It runs off the edge of the section.
+function RoadArt({ className = '' }) {
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-raydo-50/70 via-white to-white pt-28 pb-24 sm:pt-32 lg:pb-32">
-      <div className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-raydo-200/40 blur-3xl" />
-      <div className="pointer-events-none absolute -left-32 top-1/2 h-80 w-80 rounded-full bg-raydo-100/60 blur-3xl" />
+    <svg className={className} viewBox="0 0 800 760" fill="none" aria-hidden="true" preserveAspectRatio="xMaxYMax slice">
+      <g fill="#0b0b0b">
+        <rect x="560" y="330" width="280" height="30" rx="15" />
+        <rect x="470" y="392" width="370" height="30" rx="15" />
+        <rect x="610" y="454" width="230" height="30" rx="15" />
+      </g>
+      <path d="M90 930C230 770 390 650 860 610" stroke="#0b0b0b" strokeWidth="150" />
+      <path
+        className="rd-road-dash"
+        d="M90 930C230 770 390 650 860 610"
+        stroke="#ffd400"
+        strokeWidth="12"
+        strokeDasharray="52 32"
+      />
+    </svg>
+  )
+}
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-raydo-200 bg-white px-4 py-1.5 text-sm font-semibold text-raydo-700 shadow-sm">
-            <MapPin className="h-4 w-4" /> Rides & food, one app
-          </span>
+export default function Hero({ settings }) {
+  return (
+    <section className="relative overflow-hidden bg-[var(--rd-yellow)]">
+      <div className="relative z-10 mx-auto max-w-[90rem] px-4 pb-10 pt-12 sm:px-8 sm:pt-16 lg:min-h-[43rem] lg:pb-20">
+        <h1 className="rd-display rd-hero-title">
+          Get there.
+          <br />
+          Get fed.
+        </h1>
 
-          <h1 className="mt-6 font-[Outfit] text-5xl font-extrabold leading-[1.05] tracking-tight text-raydo-ink sm:text-6xl lg:text-7xl">
-            {title || (
-              <>
-                Ride anywhere.
-                <br />
-                <span className="bg-linear-to-r from-raydo-500 to-raydo-700 bg-clip-text text-transparent">Eat anything.</span>
-              </>
-            )}
-          </h1>
+        <p className="mt-8 max-w-md text-xl font-medium leading-snug">
+          Cabs, bikes and autos when you need to move. Food from the places nearby when you would rather stay put. One
+          app for both.
+        </p>
 
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-gray-600">{description}</p>
-
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <a
-              href="/taxi/user"
-              className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-raydo-500 px-7 py-4 text-base font-semibold text-raydo-ink shadow-xl shadow-raydo-500/30 transition hover:-translate-y-0.5 hover:bg-raydo-600"
-            >
-              <CarFront className="h-5 w-5" /> Book a ride
-            </a>
-            <a
-              href="/food/user"
-              className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-raydo-ink px-7 py-4 text-base font-semibold text-white shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:bg-black"
-            >
-              <UtensilsCrossed className="h-5 w-5" /> Order food
-            </a>
-          </div>
-
-          <StoreBadges settings={settings} className="mt-10" />
+        <div className="mt-9 flex flex-col gap-4 sm:flex-row">
+          <a href="/taxi/user" className="rd-btn rd-btn-black">
+            <span>Book a ride</span> <ArrowRight className="h-5 w-5" />
+          </a>
+          <a href="/food/user" className="rd-btn rd-btn-line">
+            <span>Order food</span> <ArrowRight className="h-5 w-5" />
+          </a>
         </div>
 
-        {/* Visual */}
-        <div className="relative mx-auto w-full max-w-lg">
-          <div className="relative aspect-square overflow-hidden rounded-[3rem] bg-linear-to-br from-raydo-500 via-raydo-600 to-raydo-800 shadow-2xl shadow-raydo-700/30">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_55%)]" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="rounded-[2.5rem] bg-white p-10 shadow-2xl shadow-raydo-900/40">
-                <img src={RAYDO_MARK} alt="Raydo" className="h-40 w-auto sm:h-48" />
-              </div>
-            </div>
-            <BrandWave className="absolute inset-x-0 bottom-0 h-28 w-full" color="#ffffff" />
-          </div>
-
-          <div className="absolute -left-4 top-10 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-xl sm:-left-10">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-raydo-50 text-raydo-700">
-              <CarFront className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-raydo-ink">Driver arriving</p>
-              <p className="flex items-center gap-1 text-xs text-gray-500">
-                <Clock3 className="h-3.5 w-3.5" /> 3 min away
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute -right-4 bottom-16 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-xl sm:-right-10">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-raydo-ink text-white">
-              <UtensilsCrossed className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-raydo-ink">Order on the way</p>
-              <p className="flex items-center gap-1 text-xs text-gray-500">
-                <Star className="h-3.5 w-3.5 fill-raydo-500 text-raydo-700" /> Hot & fresh
-              </p>
-            </div>
-          </div>
-        </div>
+        <StoreBadges settings={settings} className="mt-8" />
       </div>
+
+      <RoadArt className="block h-56 w-full sm:h-72 lg:absolute lg:bottom-0 lg:right-0 lg:h-[88%] lg:w-[56%]" />
     </section>
   )
 }

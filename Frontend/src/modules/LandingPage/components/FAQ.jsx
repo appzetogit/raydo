@@ -4,23 +4,23 @@ import { Plus } from 'lucide-react'
 const DEFAULT_FAQS = [
   {
     question: 'What can I do with Raydo?',
-    answer: 'Book rides (cabs, bikes, autos, parcels, airport transfers and rentals) and order food from restaurants near you, all in one app.',
+    answer: 'Book cabs, bikes, autos, parcels, airport trips and rentals, and order food from restaurants near you. It is all one app.',
   },
   {
     question: 'How do I pay?',
-    answer: 'Pay with UPI, cards, wallets or cash. You always see the fare or bill before you confirm.',
+    answer: 'UPI, cards, wallet or cash. You see the fare or the bill before you confirm.',
   },
   {
     question: 'How do I become a driver?',
-    answer: 'Tap "Register as driver", fill in your details and upload your licence and vehicle documents. We verify them and get you on the road.',
+    answer: 'Tap "Register as a driver", fill in your details and upload your licence and vehicle documents. Once they are verified you can start taking trips.',
   },
   {
     question: 'How can my restaurant join?',
-    answer: 'Tap "Partner with us" and sign in with your phone number to set up your restaurant, menu and payout details.',
+    answer: 'Tap "List your restaurant" and sign in with your phone number to set up your restaurant, menu and payout details.',
   },
   {
     question: 'Is my ride safe?',
-    answer: 'Every driver is verified, you can share your trip live with family, and an SOS button is always one tap away.',
+    answer: 'Drivers are verified, you can share your trip live with family, and SOS is available from inside the ride.',
   },
 ]
 
@@ -29,34 +29,25 @@ export default function FAQ({ settings }) {
   const [open, setOpen] = useState(0)
 
   return (
-    <section id="faq" className="scroll-mt-20 bg-raydo-50/50 py-24">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-raydo-700">FAQ</p>
-          <h2 className="mt-3 font-[Outfit] text-4xl font-bold tracking-tight text-raydo-ink sm:text-5xl">Questions, answered</h2>
-        </div>
+    <section id="faq" className="scroll-mt-[4.5rem] bg-[var(--rd-paper)] py-20 lg:py-28">
+      <div className="mx-auto grid max-w-[90rem] gap-12 px-4 sm:px-8 lg:grid-cols-2">
+        <h2 className="rd-display rd-section-title">Before you ask.</h2>
 
-        <div className="mt-12 space-y-3">
+        <div className="border-t-[3px] border-[var(--rd-black)]">
           {faqs.map((faq, i) => {
             const isOpen = open === i
             return (
-              <div key={i} className="overflow-hidden rounded-2xl bg-white shadow-sm">
+              <div key={i} className="border-b-[3px] border-[var(--rd-black)]">
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? -1 : i)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left"
+                  className="flex w-full items-center justify-between gap-6 py-5 text-left text-xl font-bold"
                 >
-                  <span className="text-base font-semibold text-raydo-ink">{faq.question}</span>
-                  <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition ${
-                      isOpen ? 'rotate-45 bg-raydo-500 text-raydo-ink' : 'bg-raydo-50 text-raydo-700'
-                    }`}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </span>
+                  {faq.question}
+                  <Plus className={`h-7 w-7 shrink-0 transition-transform ${isOpen ? 'rotate-45' : ''}`} />
                 </button>
-                {isOpen && <p className="px-6 pb-6 leading-relaxed text-gray-600">{faq.answer}</p>}
+                {isOpen && <p className="max-w-xl pb-6 text-lg leading-relaxed text-[var(--rd-muted)]">{faq.answer}</p>}
               </div>
             )
           })}

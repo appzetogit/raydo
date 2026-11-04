@@ -1,5 +1,5 @@
-import { Mail, Phone, MapPin } from 'lucide-react'
-import { RAYDO_LOGO, BrandLockup, BrandWave } from './Brand'
+import { ArrowRight, Mail, Phone, MapPin } from 'lucide-react'
+import { BrandLockup } from './Brand'
 import StoreBadges from './StoreBadges'
 
 const COLUMNS = [
@@ -14,7 +14,7 @@ const COLUMNS = [
     title: 'Partners',
     links: [
       { label: 'Drive with Raydo', href: '/taxi/driver' },
-      { label: 'Restaurant partners', href: '/food/restaurant/login' },
+      { label: 'List your restaurant', href: '/food/restaurant/login' },
     ],
   },
   {
@@ -37,40 +37,32 @@ export default function Footer({ settings }) {
 
   return (
     <footer>
-      {/* Download band */}
-      <section className="relative overflow-hidden bg-linear-to-br from-raydo-500 via-raydo-600 to-raydo-800 py-20 text-raydo-ink">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 text-center sm:px-6 lg:flex-row lg:justify-between lg:text-left lg:px-8">
-          <div className="max-w-xl">
-            <h2 className="font-[Outfit] text-4xl font-bold sm:text-5xl">Your next ride and meal are a tap away.</h2>
-            <p className="mt-4 text-lg text-white/80">Get Raydo and do both from one app.</p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
-              <a href="/taxi/user" className="rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-raydo-700 hover:bg-raydo-50">
-                Book a ride
+      <section className="bg-[var(--rd-yellow)] py-16 lg:py-24">
+        <div className="mx-auto flex max-w-[90rem] flex-col gap-10 px-4 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
+          <h2 className="rd-display rd-hero-title">Where to?</h2>
+          <div className="lg:pb-3">
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <a href="/taxi/user" className="rd-btn rd-btn-black">
+                <span>Book a ride</span> <ArrowRight className="h-5 w-5" />
               </a>
-              <a href="/food/user" className="rounded-xl bg-raydo-ink px-6 py-3.5 text-sm font-semibold text-white hover:bg-black">
-                Order food
+              <a href="/food/user" className="rd-btn rd-btn-line">
+                <span>Order food</span> <ArrowRight className="h-5 w-5" />
               </a>
             </div>
-            <StoreBadges settings={settings} tone="light" className="mt-6 justify-center lg:justify-start" />
-          </div>
-          <div className="rounded-[2.5rem] bg-white p-8 shadow-2xl shadow-raydo-900/30">
-            <img src={RAYDO_LOGO} alt="Raydo" className="h-40 w-auto" loading="lazy" />
+            <StoreBadges settings={settings} className="mt-5" />
           </div>
         </div>
-        <BrandWave className="pointer-events-none absolute inset-x-0 bottom-0 h-16 w-full" color="#17141a" />
       </section>
 
-      <div className="bg-raydo-ink text-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-5 lg:px-8">
+      <div className="overflow-hidden bg-[var(--rd-black)] text-white">
+        <div className="mx-auto grid max-w-[90rem] gap-12 px-4 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <BrandLockup tone="light" />
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">Rides and food delivery, together in one app.</p>
+            <BrandLockup />
             {contacts.length > 0 && (
-              <ul className="mt-6 space-y-3 text-sm text-white/70">
+              <ul className="mt-6 space-y-3 text-white/70">
                 {contacts.map(({ Icon, value, href }) => (
                   <li key={value} className="flex items-start gap-3">
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-raydo-400" />
+                    <Icon className="mt-1 h-4 w-4 shrink-0 text-[var(--rd-yellow)]" />
                     {href ? <a href={href} className="hover:text-white">{value}</a> : <span>{value}</span>}
                   </li>
                 ))}
@@ -80,11 +72,11 @@ export default function Footer({ settings }) {
 
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-white/50">{col.title}</h3>
+              <h3 className="font-bold text-[var(--rd-yellow)]">{col.title}</h3>
               <ul className="mt-4 space-y-3">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <a href={link.href} className="text-sm text-white/80 transition hover:text-raydo-400">
+                    <a href={link.href} className="text-white/80 transition-colors hover:text-white">
                       {link.label}
                     </a>
                   </li>
@@ -94,11 +86,12 @@ export default function Footer({ settings }) {
           ))}
         </div>
 
-        <div className="border-t border-white/10">
-          <p className="mx-auto max-w-7xl px-4 py-6 text-sm text-white/50 sm:px-6 lg:px-8">
-            © {new Date().getFullYear()} Raydo. All rights reserved.
-          </p>
-        </div>
+        <p className="mx-auto max-w-[90rem] px-4 pb-6 text-sm text-white/60 sm:px-8">
+          © {new Date().getFullYear()} Raydo. All rights reserved.
+        </p>
+        <p aria-hidden="true" className="rd-display rd-footer-word select-none whitespace-nowrap text-center text-[var(--rd-yellow)]">
+          Raydo
+        </p>
       </div>
     </footer>
   )

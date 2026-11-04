@@ -2,6 +2,7 @@ import React, { useEffect, useState, lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import api from '../Taxi/shared/api/axiosInstance'
+import './landing.css'
 
 const Services = lazy(() => import('./components/Services'))
 const HowItWorks = lazy(() => import('./components/HowItWorks'))
@@ -40,7 +41,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white font-[Poppins] text-raydo-ink antialiased overflow-x-clip">
+    <div className="rd min-h-screen antialiased overflow-x-clip">
       <Navbar />
       <main>
         <Hero settings={landingSettings} />

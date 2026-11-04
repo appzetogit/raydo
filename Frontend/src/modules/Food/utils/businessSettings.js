@@ -15,7 +15,7 @@ const DEFAULT_COMPANY_NAME = "Raydo";
 // vendor builds. They are placeholders, not choices, so they get replaced by the default.
 //
 // This used to be a SUBSTRING test, which meant any name merely CONTAINING one of these
-// -- "K9 Rides Pvt Ltd", and every name with a stray "k9" in it -- was silently rewritten
+// -- "Raydo Pvt Ltd", and every name with a stray "k9" in it -- was silently rewritten
 // to "Raydo". An operator would save a company name in Business Setup, watch the
 // sidebar and tab title keep showing the old brand, and reasonably conclude the save had
 // failed. Matching the whole name exactly leaves anything deliberately typed alone.

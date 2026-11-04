@@ -1,5 +1,6 @@
 import { asyncHandler } from "../../../../utils/asyncHandler.js";
 import * as adminService from "../services/adminService.js";
+import { getTaxiTaxReport } from '../../services/taxiTaxService.js';
 import ExcelJS from 'exceljs';
 import { BusBooking } from '../../user/models/BusBooking.js';
 import { BusService } from '../models/BusService.js';
@@ -1669,6 +1670,10 @@ export const downloadFleetFinanceReport = asyncHandler(async (req, res) => {
   const data = await adminService.buildFleetFinanceReport(req.query);
   await sendFile(res, "fleet-finance-report", data, format);
 });
+export const getTaxiTaxReportData = asyncHandler(async (req, res) =>
+  ok(res, await getTaxiTaxReport(req.query || {})),
+);
+
 export const getGeneralSettingsCategory = asyncHandler(async (req, res) =>
   ok(res, await adminService.getGeneralSettings(req.params.category)),
 );

@@ -443,7 +443,7 @@ export const useRestaurantNotifications = () => {
       let suggestedBackendUrl = null;
       
       // Common patterns:
-      // - If frontend is on foods.K9 Rides.com, backend might be api.foods.K9 Rides.com or foods.K9 Rides.com
+      // - If frontend is on foods.Raydo.com, backend might be api.foods.Raydo.com or foods.Raydo.com
       if (frontendHost.includes('foods.raydo.in')) {
         suggestedBackendUrl = `${frontendProtocol}//api.foods.raydo.in/api`;
       } else if (frontendHost.includes('raydo.in')) {
@@ -489,8 +489,8 @@ export const useRestaurantNotifications = () => {
     
     // Construct Socket.IO URL
     // IMPORTANT: Socket.IO server is on the origin (not /api/v1).
-    // Our API baseURL is typically like: https://k9rides.onrender.com/api/v1
-    // So for sockets we always connect to: https://k9rides.onrender.com
+    // Our API baseURL is typically like: https://raydo.in/api/v1
+    // So for sockets we always connect to: https://raydo.in
     let socketOrigin = backendUrl;
     try {
       socketOrigin = new URL(backendUrl).origin;
