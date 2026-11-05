@@ -3,7 +3,7 @@
  * test number, with a small approved menu so the reviewer lands on a working
  * dashboard.
  *
- *   Login: 7470311227   OTP: 1234   (DUMMY_OTP_PHONES in core/otp/otp.service.js)
+ *   Login: 7470311227   OTP: 1234   (REVIEW_OTP_PHONES in the server's .env; see core/otp/reviewOtp.js)
  *
  * Location, zone, hours and delivery settings are copied from an existing
  * approved Indore restaurant, so it behaves like a real one. Safe to re-run:
@@ -17,7 +17,7 @@ import mongoose from 'mongoose';
 
 const PHONE = '7470311227';
 const NAME = 'Raydo Test Kitchen';
-const TEMPLATE_NAME = 'Spice Garden Restaurant';
+const TEMPLATE_NAME = 'raydo demo restaurant';
 const apply = process.argv.includes('--apply');
 
 const DISHES = [
