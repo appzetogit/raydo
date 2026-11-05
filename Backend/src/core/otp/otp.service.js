@@ -7,6 +7,7 @@ import { logger } from '../../utils/logger.js';
 import { ValidationError } from '../auth/errors.js';
 import { consumeOtpQuota, otpRateLimitMessage, OTP_SERVICES } from './otpRateLimit.service.js';
 import { webtechEnabled, sendOtpViaWebtech } from './webtechSms.js';
+import { isReviewOtpPhone, reviewOtpCode } from './reviewOtp.js';
 
 /**
  * OTP length. 4 today because every shipped app (customer, restaurant, rider)
@@ -222,6 +223,13 @@ export const createOrUpdateOtp = async (phone, scope = 'default', { service = OT
         throw new ValidationError('A valid phone number is required');
     }
 
+    // Store-review numbers (reviewOtp.js): no SMS to send, and a reviewer retrying
+    // must not run into the rate limit. verifyOtp checks the code.
+    if (isReviewOtpPhone(normalizedPhone)) {
+        logger.info(`[OTP] Review number ${normalizedPhone}: no SMS sent, scope ${normalizedScope}`);
+        return reviewOtpCode();
+    }
+
     let existing = await FoodOtp.findOne({
         phone: normalizedPhone,
         $or: [{ scope: normalizedScope }, { scope: { $exists: false } }]
@@ -325,6 +333,14 @@ export const verifyOtp = async (phone, otp, scope = 'default') => {
     }
 
     const otpStr = String(otp ?? '').trim();
+
+    // The one production exception to the guard below: numbers listed in the
+    // server's environment for store review. See reviewOtp.js.
+    if (isReviewOtpPhone(normalizedPhone)) {
+        const valid = otpStr === reviewOtpCode();
+        logger.info(`[OTP VERIFY] Review number ${normalizedPhone} scope=${normalizedScope} valid=${valid}`);
+        return valid ? { valid: true } : { valid: false, reason: 'Invalid OTP' };
+    }
 
     // Dummy / QA numbers: '1234' is accepted IN ADDITION to the real OTP that was
     // SMS-ed to them. Never in production: these numbers are readable in the source,
