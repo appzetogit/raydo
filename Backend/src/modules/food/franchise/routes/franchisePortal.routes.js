@@ -53,7 +53,11 @@ const withoutKeys = (keys) => (data) => ({
 });
 
 /* ---------------------------------------------------------------- account */
-router.get('/me', wrap((req) => partner.getPartnerDashboardData(null, null, { franchiseId: fid(req) }), 'Franchise fetched'));
+router.get('/me', wrap(async (req) => {
+    const data = await partner.getPartnerDashboardData(null, null, { franchiseId: fid(req) });
+    // The dashboard's recent-orders list carries customer phones as well.
+    return data && { ...data, territoryOrders: withoutKeys(['customerPhone'])({ items: data.territoryOrders }).items };
+}, 'Franchise fetched'));
 router.get('/finance', wrap((req) => partner.getPartnerFinance(fid(req), req.query), 'Finance fetched'));
 router.get('/ledger', wrap((req) => overview.listFranchiseLedger(fid(req), req.query), 'Ledger fetched'));
 router.post('/support-messages', wrap((req) => partner.submitPartnerSupportMessage(fid(req), req.body || {}), 'Message sent'));

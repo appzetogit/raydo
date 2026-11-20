@@ -13,6 +13,8 @@ const HelpSupportPage = lazy(() => import('../modules/auth/pages/HelpSupportPage
 const TermsPage = lazy(() => import('../modules/auth/pages/TermsPage'))
 const PrivacyPage = lazy(() => import('../modules/auth/pages/PrivacyPage'))
 const LandingPage = lazy(() => import('../modules/LandingPage/LandingPage'))
+// Franchise partner portal: its own login and its own token (see modules/franchise/api.js).
+const FranchiseApp = lazy(() => import('../modules/franchise/FranchiseApp'))
 import ProtectedRoute from '@food/components/ProtectedRoute'
 
 const PageLoader = () => <AppShellSkeleton />
@@ -164,6 +166,9 @@ const AppRoutes = () => {
             </Suspense>
           }
         />
+
+        {/* Franchise partner portal */}
+        <Route path="/franchise/*" element={<Suspense fallback={<PageLoader />}><FranchiseApp /></Suspense>} />
 
         {/* Dynamic intercept redirects for bare paths (accessed programmatically) */}
         <Route path="/user/*" element={<RedirectToFood />} />

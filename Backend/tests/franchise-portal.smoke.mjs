@@ -162,6 +162,9 @@ const main = async () => {
         const res = await call('GET', '/v1/franchise/me', { token: tokenA });
         assert.equal(res.status, 200, res.message);
         assert.equal(res.data.partnerInfo.applicantName, 'Alpha');
+        assert.equal(res.data.territoryOrders.length, 1);
+        assert.ok(!JSON.stringify(res.data).includes('9800000001'), 'customer phone on the dashboard');
+        assert.ok(!JSON.stringify(res.data).includes('ORD-B'));
     });
     await check('riders: only its zone is listed', async () => {
         const res = await call('GET', '/v1/franchise/riders', { token: tokenA });
