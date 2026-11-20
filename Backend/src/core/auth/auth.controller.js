@@ -2,6 +2,7 @@ import {
   requestUserOtp,
   verifyUserOtpAndLogin,
   adminLogin,
+  franchiseLogin,
   refreshAccessToken,
   requestRestaurantOtp,
   verifyRestaurantOtpAndLogin,
@@ -82,6 +83,16 @@ export const adminLoginController = async (req, res, next) => {
     const { email, password } = validateAdminLoginDto(req.body);
     const result = await adminLogin(email, password);
     return sendResponse(res, 200, "Admin login successful", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const franchiseLoginController = async (req, res, next) => {
+  try {
+    const { email, password } = validateAdminLoginDto(req.body);
+    const result = await franchiseLogin(email, password);
+    return sendResponse(res, 200, "Franchise login successful", result);
   } catch (error) {
     next(error);
   }

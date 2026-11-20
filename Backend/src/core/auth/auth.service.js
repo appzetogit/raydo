@@ -13,6 +13,7 @@ import { createSellerWebLogin, hashPortalPassword } from "./sellerWebLogin.js";
 import { FoodRefreshToken } from "../refreshTokens/refreshToken.model.js";
 import { ValidationError, AuthError } from "./errors.js";
 import { FRANCHISE_LOCKED_MESSAGE, isFranchiseAdminId } from "../admin/franchiseLockout.js";
+import { FRANCHISE_ROLE, FranchiseSessionError, resolveFranchiseLogin } from "../admin/franchiseSession.js";
 import { config } from "../../config/env.js";
 import { logger } from "../../utils/logger.js";
 import { sendAdminResetOtpEmail } from "../../utils/email.js";
@@ -341,6 +342,59 @@ export const adminLogin = async (email, password) => {
   };
 
   return { accessToken, refreshToken, user: mergedUser };
+};
+
+/**
+ * Franchise partner login. Only an account linked to an approved, active franchise
+ * gets in, and only to the /v1/franchise API: the token's role is FRANCHISE, which
+ * every admin door still refuses (see core/admin/franchiseSession.js).
+ * Any other account, a platform admin included, is told "Invalid credentials" here.
+ */
+export const franchiseLogin = async (email, password) => {
+  if (!email || !password) {
+    throw new ValidationError("Email and password are required");
+  }
+  const admin = await FoodAdmin.findOne({ email: String(email).trim().toLowerCase() });
+  if (!admin || !(await admin.comparePassword(password))) {
+    throw new AuthError("Invalid credentials");
+  }
+  if (!(await isFranchiseAdminId(admin._id))) {
+    throw new AuthError("Invalid credentials");
+  }
+
+  let franchise;
+  try {
+    ({ franchise } = await resolveFranchiseLogin(admin._id));
+  } catch (err) {
+    if (err instanceof FranchiseSessionError) throw new AuthError(err.message);
+    throw err;
+  }
+
+  const payload = { userId: admin._id.toString(), role: FRANCHISE_ROLE };
+  const accessToken = signAccessToken(payload);
+  const refreshToken = signRefreshToken(payload);
+  const ttlMs = ms(config.jwtRefreshExpiresIn || "7d");
+  await FoodRefreshToken.create({
+    userId: admin._id,
+    token: refreshToken,
+    expiresAt: new Date(Date.now() + ttlMs),
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+    user: {
+      id: String(admin._id),
+      name: admin.name || franchise.applicantName || "",
+      email: admin.email,
+      role: FRANCHISE_ROLE,
+      franchise: {
+        id: String(franchise._id),
+        name: franchise.companyName || franchise.applicantName || "",
+        modules: franchise.selectedModules || [],
+      },
+    },
+  };
 };
 
 export const requestRestaurantOtp = async (phone) => {
@@ -1057,6 +1111,17 @@ export const refreshAccessToken = async (token) => {
     if (!r || r.status === "rejected") {
       await FoodRefreshToken.deleteOne({ token });
       throw new AuthError("This account is not active");
+    }
+  }
+
+  // A suspended, terminated or fee-locked franchise stops getting fresh tokens.
+  if (String(payload?.role || "").toUpperCase() === FRANCHISE_ROLE) {
+    try {
+      await resolveFranchiseLogin(payload.userId);
+    } catch (err) {
+      if (!(err instanceof FranchiseSessionError)) throw err;
+      await FoodRefreshToken.deleteOne({ token });
+      throw new AuthError(err.message);
     }
   }
 

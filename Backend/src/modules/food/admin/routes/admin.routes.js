@@ -414,8 +414,9 @@ import * as subadminController from '../controllers/foodAdminManagement.controll
 router.use(attachFoodAdminContext);
 
 // ----- Franchise Management -----
-// Stage 1: managing franchises only. Partner logins stay refused (core/admin/franchiseLockout.js)
-// and routes that pay out or rewrite the ledger are not mounted until earnings are ported.
+// Managing franchises. Partner logins are refused here (core/admin/franchiseLockout.js); they
+// use /v1/franchise instead (core/admin/franchiseSession.js). Routes that pay out or rewrite
+// the ledger are not mounted until earnings are ported.
 // Only platform / module super admins may manage franchises. A franchise login (or any sub-admin)
 // must never reach these routes - they control commissions, fees and payouts.
 router.use('/franchise', (req, _res, next) =>

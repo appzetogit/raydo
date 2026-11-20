@@ -3,6 +3,7 @@ import {
     requestUserOtpController,
     verifyUserOtpController,
     adminLoginController,
+    franchiseLoginController,
     refreshTokenController,
     requestRestaurantOtpController,
     verifyRestaurantOtpController,
@@ -52,6 +53,9 @@ router.post('/delivery/verify-otp', authRateLimiter, verifyDeliveryOtpController
 
 // Admin login
 router.post('/admin/login', authRateLimiter, adminLoginController);
+
+// Franchise partner login: its token opens only the /v1/franchise API
+router.post('/franchise/login', authRateLimiter, franchiseLoginController);
 
 // Admin forgot password (no auth required)
 router.post('/admin/forgot-password/request-otp', authRateLimiter, requestAdminForgotPasswordOtpController);

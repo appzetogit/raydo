@@ -1,0 +1,79 @@
+import express from 'express';
+import { sendError, sendResponse } from '../../../../utils/response.js';
+import { requireFranchiseSession } from '../../../../core/admin/franchiseSession.js';
+import { normalizeModules } from '../../admin/services/franchisePlan.js';
+import * as portal from '../services/franchisePortal.service.js';
+import * as partner from '../services/franchise.public.service.js';
+import * as overview from '../../admin/services/franchiseOverview.service.js';
+import * as taxi from '../../admin/services/franchiseTaxi.service.js';
+
+/**
+ * /v1/franchise: the franchise partner's own API (stage 2).
+ *
+ * Every route runs behind requireFranchiseSession, which takes the franchise from the
+ * login account, never from the request. Each handler passes req.user.franchiseId to
+ * a service that matches on it, so no id in a path or query can reach another
+ * franchise's rows. Records outside the franchise answer 404.
+ *
+ * Not mounted yet, on purpose: delivery fee changes, payout and refund requests and
+ * bank detail changes (they wait for the earnings work), and the public application
+ * and fee payment.
+ */
+const router = express.Router();
+router.use(requireFranchiseSession);
+
+// The list services copy some query values straight into a Mongo filter. They are
+// already limited to the franchise, but keep operators like status[$ne]= out anyway.
+router.use((req, _res, next) => {
+    for (const [key, value] of Object.entries(req.query || {})) {
+        if (typeof value !== 'string') delete req.query[key];
+    }
+    next();
+});
+
+const fid = (req) => req.user.franchiseId;
+const wrap = (fn, message) => async (req, res, next) => {
+    try {
+        return sendResponse(res, 200, message, await fn(req));
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const requireModule = (module) => (req, res, next) => (
+    normalizeModules(req.franchise?.selectedModules).includes(module)
+        ? next()
+        : sendError(res, 403, `Your franchise does not include the ${module === 'food' ? 'Food' : 'Taxi'} module`)
+);
+
+// Customers' phone numbers stay with the platform.
+const withoutKeys = (keys) => (data) => ({
+    ...data,
+    items: (data?.items || []).map((row) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)))),
+});
+
+/* ---------------------------------------------------------------- account */
+router.get('/me', wrap((req) => partner.getPartnerDashboardData(null, null, { franchiseId: fid(req) }), 'Franchise fetched'));
+router.get('/finance', wrap((req) => partner.getPartnerFinance(fid(req), req.query), 'Finance fetched'));
+router.get('/ledger', wrap((req) => overview.listFranchiseLedger(fid(req), req.query), 'Ledger fetched'));
+router.post('/support-messages', wrap((req) => partner.submitPartnerSupportMessage(fid(req), req.body || {}), 'Message sent'));
+
+/* ------------------------------------------------------------------- food */
+const food = requireModule('food');
+router.get('/restaurants', food, wrap((req) => overview.listFranchiseRestaurants(fid(req), req.query), 'Restaurants fetched'));
+router.get('/orders', food, wrap(async (req) => withoutKeys(['customerPhone'])(await overview.listFranchiseOrders(fid(req), req.query)), 'Orders fetched'));
+router.get('/payments', food, wrap((req) => portal.listFoodPayments(fid(req), req.query), 'Payments fetched'));
+router.get('/delivery-fees', food, wrap((req) => portal.getDeliveryFees(fid(req)), 'Delivery fees fetched'));
+router.get('/riders', food, wrap((req) => portal.listRiders(fid(req), req.query), 'Riders fetched'));
+router.get('/riders/:riderId', food, wrap((req) => portal.getRider(fid(req), req.params.riderId), 'Rider fetched'));
+router.post('/riders/:riderId/decision', food, wrap((req) => portal.decideRider(req, req.params.riderId, req.body || {}), 'Rider updated'));
+
+/* ------------------------------------------------------------------- taxi */
+const cab = requireModule('taxi');
+router.get('/taxi/overview', cab, wrap((req) => taxi.getTaxiOverview(fid(req)), 'Taxi overview fetched'));
+router.get('/taxi/rides', cab, wrap(async (req) => withoutKeys(['riderPhone'])(await taxi.listTaxiRides(fid(req), req.query)), 'Rides fetched'));
+router.get('/taxi/drivers', cab, wrap((req) => taxi.listTaxiDrivers(fid(req), req.query), 'Drivers fetched'));
+router.get('/taxi/drivers/:driverId', cab, wrap((req) => portal.getTaxiDriver(fid(req), req.params.driverId), 'Driver fetched'));
+router.post('/taxi/drivers/:driverId/decision', cab, wrap((req) => portal.decideTaxiDriver(req, req.params.driverId, req.body || {}), 'Driver updated'));
+
+export default router;

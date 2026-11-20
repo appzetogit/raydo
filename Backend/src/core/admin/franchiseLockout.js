@@ -7,10 +7,12 @@ import { FoodAdmin } from './admin.model.js';
  * They hold no level this code recognises, so the admin policy falls through to full
  * access, and their older tokens say role ADMIN. There are no franchise isolation checks
  * here, so such a token would reach every order, restaurant and setting on the platform.
- * Until franchise logins are scoped again they are refused at every door.
+ * So they stay refused at every admin, taxi and socket door. Their one way in is the
+ * franchise login and the /v1/franchise API (franchiseSession.js), which is limited to
+ * the franchise by construction.
  *
- * Read from the raw collection on purpose: franchiseId is not in the admin schema, so a
- * mongoose document would silently drop the one field that identifies these accounts.
+ * Read from the raw collection on purpose: older logins carry identifying fields (role,
+ * admin_type spellings) that a mongoose document would normalise or drop.
  */
 const TTL_MS = 15_000;
 const cache = new Map();

@@ -59,10 +59,11 @@ const main = async () => {
         assert.equal(paths.filter((p) => /payout-requests|refund-requests/.test(p)).length, 0);
         assert.ok(!franchiseRoutes.some((r) => r.path.endsWith('/reconcile') && r.methods.includes('post')));
     });
-    await check('public applications and the partner API are not mounted', async () => {
+    await check('public applications are not mounted; /v1/franchise is only the partner portal', async () => {
         const index = readFileSync(new URL('../src/routes/index.js', import.meta.url), 'utf8');
-        assert.ok(!/\/v1\/franchise\b/.test(index));
         assert.ok(!/franchise\.routes/.test(index));
+        const mounts = index.match(/router\.use\('\/v1\/franchise[^']*',[^)]*\)/g) || [];
+        assert.deepEqual(mounts, ["router.use('/v1/franchise', franchisePortalRoutes)"]);
     });
 
     console.log('\nwho may use it');

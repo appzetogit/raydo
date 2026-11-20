@@ -51,7 +51,8 @@ const adminSchema = new mongoose.Schema(
             enum: [...Object.values(ADMIN_MODULES), null],
             default: null
         },
-        // Set on a franchise login. Such an account is refused everywhere: see franchiseLockout.js.
+        // Set on a franchise login. Such an account is refused by every admin API
+        // (franchiseLockout.js) and only gets into /v1/franchise (franchiseSession.js).
         franchiseId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'FranchiseApplication',

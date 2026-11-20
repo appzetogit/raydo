@@ -1,5 +1,6 @@
 import express from 'express';
 import authRoutes from '../core/auth/auth.routes.js';
+import franchisePortalRoutes from '../modules/food/franchise/routes/franchisePortal.routes.js';
 import deliveryRoutes from '../modules/food/delivery/routes/delivery.routes.js';
 import restaurantRoutes from '../modules/food/restaurant/routes/restaurant.routes.js';
 import landingRoutes from '../modules/food/landing/routes/landing.routes.js';
@@ -150,6 +151,9 @@ router.use('/v1/food/auth', authRoutes);
 
 // Backward-compatible auth routes (legacy)
 router.use('/v1/auth', authRoutes);
+// Franchise partners: their own API, behind their own FRANCHISE token. Every other
+// API keeps refusing franchise logins (core/admin/franchiseLockout.js).
+router.use('/v1/franchise', franchisePortalRoutes);
 router.use('/v1/food/delivery', deliveryRoutes);
 router.use('/v1/food/restaurant', restaurantRoutes);
 // Landing & hero-banners for Food user app (paths start with /food/hero-banners/...)
