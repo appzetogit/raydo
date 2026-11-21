@@ -11,6 +11,7 @@ import { signAccessToken } from './authService.js';
 import { rejectWrongOtp, resetOtpAttempts } from '../../services/otpAttempts.js';
 import { sendOtpSms } from '../../services/smsService.js';
 import { consumeOtpQuota, otpRateLimitMessage, OTP_SERVICES } from '../../../../core/otp/otpRateLimit.service.js';
+import { isReviewOtpPhone, reviewOtpCode } from '../../../../core/otp/reviewOtp.js';
 
 const LOGIN_OTP_TTL_MS = 10 * 60 * 1000;
 
@@ -94,6 +95,11 @@ const resolveDriverLoginOtpForPhone = (phone) => {
   const normalizedPhone = normalizePhone(phone);
   const staticOtpConfig = getStaticDriverOtpConfig();
   const defaultOtpEnabled = isTruthy(env.sms?.useDefaultOtp);
+
+  // Store-review numbers listed in the server's environment. See reviewOtp.js.
+  if (isReviewOtpPhone(normalizedPhone)) {
+    return { otp: reviewOtpCode(), isStatic: true };
+  }
 
   // Both shortcuts hand out a KNOWN code, so each is a sign-in bypass for
   // whoever knows it. The fallback test phone ('6268423925' / '0000') applied
@@ -249,9 +255,12 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
   }
 
   // Shared platform-wide budget. This path previously had no throttle at all.
-  const quota = await consumeOtpQuota(normalizedPhone, { service: OTP_SERVICES.TAXI_DRIVER });
-  if (!quota.allowed) {
-    throw new ApiError(429, otpRateLimitMessage(quota));
+  // A store reviewer retrying sends no SMS, so there is nothing to throttle.
+  if (!isReviewOtpPhone(normalizedPhone)) {
+    const quota = await consumeOtpQuota(normalizedPhone, { service: OTP_SERVICES.TAXI_DRIVER });
+    if (!quota.allowed) {
+      throw new ApiError(429, otpRateLimitMessage(quota));
+    }
   }
 
   const account =
