@@ -203,6 +203,8 @@ const busServiceSchema = new mongoose.Schema(
       default: null,
       index: true,
     },
+    // Optional: the franchise this bus earns for. Empty = the franchise of the operator's service location.
+    franchiseId: { type: mongoose.Schema.Types.ObjectId, ref: 'FranchiseApplication', default: null },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Owner',

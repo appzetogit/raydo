@@ -277,6 +277,10 @@ const rentalBookingRequestSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    // Franchise earnings (franchiseTaxi.service.js): which franchise was credited, and when
+    // the sweep last decided about this booking. Declared so strict mode keeps them.
+    franchiseApplicationId: { type: mongoose.Schema.Types.ObjectId, ref: 'FranchiseApplication', default: null, index: true },
+    franchiseCreditCheckedAt: { type: Date, default: null, index: true },
     paymentStatus: {
       type: String,
       enum: ['pending', 'paid', 'not_required', 'failed'],

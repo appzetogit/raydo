@@ -18,6 +18,8 @@ import { logger } from '../../../../utils/logger.js';
  * Taxi
  *   - Rides are attributed by the driver's taxi zone when the ride is settled
  *     (franchiseTaxi.service.js creditFranchiseForRide), and the sweep retries missed ones.
+ *   - Bus, pooling and rental bookings are credited by the sweep alone
+ *     (creditFranchiseForBusBookings, creditFranchiseForPoolingAndRental).
  *
  * "Operating" means approved, joining fee paid or waived, not suspended or terminated, not
  * archived. A suspended franchise is not given new orders.
@@ -180,8 +182,17 @@ export async function runFranchiseEarningsSweep() {
         import('../../restaurant/models/restaurant.model.js'),
         import('../../../taxi/user/models/Ride.js'),
         import('../../../taxi/driver/models/Driver.js'),
+        import('../../../taxi/driver/models/Zone.js'),
+        import('../../../taxi/user/models/BusBooking.js'),
+        import('../../../taxi/admin/models/BusService.js'),
+        import('../../../taxi/admin/models/Owner.js'),
+        import('../../../taxi/admin/models/PoolingBooking.js'),
+        import('../../../taxi/admin/models/PoolingRoute.js'),
+        import('../../../taxi/admin/models/RentalBookingRequest.js'),
     ]);
-    const { creditPendingFranchiseRides } = await import('../../admin/services/franchiseTaxi.service.js');
+    const {
+        creditPendingFranchiseRides, creditFranchiseForBusBookings, creditFranchiseForPoolingAndRental,
+    } = await import('../../admin/services/franchiseTaxi.service.js');
 
     const result = {};
     const step = async (key, fn) => {
@@ -200,5 +211,9 @@ export async function runFranchiseEarningsSweep() {
     await step('ridesCredited', () => (hoursSinceStart > 0
         ? creditPendingFranchiseRides({ windowHours: Math.min(24, hoursSinceStart) })
         : 0));
+    // Bus trips once the travel day is over; pooling and rentals once completed and paid.
+    // Each switches on or off in Franchise > Module fees; none earns before the cutoff.
+    await step('busCredited', () => creditFranchiseForBusBookings(200));
+    await step('poolingRentalCredited', () => creditFranchiseForPoolingAndRental(200));
     return result;
 }

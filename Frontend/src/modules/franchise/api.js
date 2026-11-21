@@ -152,6 +152,7 @@ export const franchiseApi = {
 
   taxiOverview: () => data(client.get("/franchise/taxi/overview")),
   taxiRides: (params) => data(client.get("/franchise/taxi/rides", { params })),
+  taxiBookings: (params) => data(client.get("/franchise/taxi/bookings", { params })),
   taxiDrivers: (params) => data(client.get("/franchise/taxi/drivers", { params })),
   taxiDriver: (id) => data(client.get(`/franchise/taxi/drivers/${id}`)),
   decideTaxiDriver: (id, body) => data(client.post(`/franchise/taxi/drivers/${id}/decision`, body)),

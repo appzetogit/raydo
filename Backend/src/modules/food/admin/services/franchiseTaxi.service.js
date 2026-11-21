@@ -6,6 +6,7 @@ import { creditTaxiRide, creditBooking } from './franchiseLedger.service.js';
 import { normalizeModules, roundMoney } from './franchisePlan.js';
 import { resolveRates } from './commissionRules.service.js';
 import { bpsToPercent } from './franchiseMoney.js';
+import { ATTRIBUTION_STARTED_AT } from '../../franchise/services/franchiseAttribution.service.js';
 
 /**
  * TAXI SIDE OF A FRANCHISE
@@ -404,11 +405,22 @@ async function franchiseForBusService(busService) {
     return franchiseForServiceLocation(owner?.service_location_id);
 }
 
-const todayKey = () => new Date().toISOString().slice(0, 10);
+/** Today in India as YYYY-MM-DD: bus travel dates are Indian calendar days. */
+const todayKey = () => new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+
+/** Earnings count from whichever is later: the franchise starting, or franchise earnings going live. */
+const sinceOf = (app) => new Date(Math.max(
+    new Date(app?.franchiseFeePaidAt || app?.reviewedAt || app?.createdAt || 0).getTime(),
+    ATTRIBUTION_STARTED_AT.getTime(),
+));
 
 /**
- * Credit franchises for bus trips that are over (travel date before today). Idempotent: a booking is stamped once, and the
- * ledger row is unique per booking. Cancelled / failed bookings earn nothing; a part-refund scales the platform earning down.
+ * Credit franchises for bus trips that are over (travel date before today, India time).
+ *  - Only confirmed bookings paid online, made after sinceOf(franchise).
+ *  - Raydo's earning on a booking = the ticket amount (the seat fares; no tax is added to it)
+ *    x the bus's adminCommissionPercentage. The franchise's commission rule applies to that.
+ *  - Every booking looked at is stamped franchiseCreditCheckedAt, so the sweep always moves on;
+ *    the ledger row is unique per booking, so a retry never pays twice.
  */
 export async function creditFranchiseForBusBookings(limit = 100) {
     const BusBooking = model('TaxiBusBooking');
@@ -416,13 +428,14 @@ export async function creditFranchiseForBusBookings(limit = 100) {
     if (!BusBooking || !BusService) return 0;
 
     const settings = await getTaxiSettings();
-    if (settings.services.bus === false) return 0; // bus is switched off for franchises: leave bookings unchecked
+    if (settings.services.bus === false) return 0; // switched off for franchises: leave bookings unchecked
 
     const bookings = await BusBooking.find({
-        status: { $in: ['confirmed', 'boarded', 'completed', 'partially_cancelled'] },
+        status: 'confirmed',
+        'payment.status': { $in: ['paid', 'captured'] },
         travelDate: { $lt: todayKey() },
         franchiseCreditCheckedAt: null,
-    }).select('busServiceId amount financialSnapshot createdAt').limit(limit).lean();
+    }).sort({ createdAt: 1 }).select('busServiceId amount createdAt').limit(limit).lean();
 
     let credited = 0;
     const serviceCache = new Map();
@@ -430,17 +443,13 @@ export async function creditFranchiseForBusBookings(limit = 100) {
         try {
             const key = String(b.busServiceId);
             if (!serviceCache.has(key)) {
-                const svc = await BusService.findById(b.busServiceId).select('ownerId franchiseId').lean();
-                serviceCache.set(key, svc ? await franchiseForBusService(svc) : null);
+                const svc = await BusService.findById(b.busServiceId).select('ownerId franchiseId adminCommissionPercentage').lean();
+                serviceCache.set(key, { svc, app: svc ? await franchiseForBusService(svc) : null });
             }
-            const app = serviceCache.get(key);
-            // Only bookings made while the franchise was active earn for it (no back-dated money for old bookings)
-            const since = new Date(app?.franchiseFeePaidAt || app?.reviewedAt || app?.createdAt || 0);
-            if (app && new Date(b.createdAt) >= since) {
-                const total = Number(b.amount) || 0;
-                const kept = total > 0 ? Math.max(0, total - (Number(b.financialSnapshot?.refundedAmount) || 0)) / total : 1;
-                const full = Number(b.financialSnapshot?.calculatedPlatformEarning) || 0;
-                const base = roundMoney(full * kept);
+            const { svc, app } = serviceCache.get(key);
+            if (app && new Date(b.createdAt) >= sinceOf(app)) {
+                const pct = Math.max(0, Math.min(100, Number(svc?.adminCommissionPercentage) || 0));
+                const base = roundMoney(((Number(b.amount) || 0) * pct) / 100);
                 const row = await creditBooking({ franchiseId: app._id, kind: 'bus', bookingId: b._id, base });
                 if (row) {
                     credited += 1;
@@ -489,21 +498,16 @@ export async function listTaxiBusBookings(franchiseId, query = {}) {
 
 /* --------------------------- POOLING + RENTAL --------------------------- */
 
-const sinceOf = (app) => new Date(app?.franchiseFeePaidAt || app?.reviewedAt || app?.createdAt || 0);
+/** Rental: Raydo records no commission on a rental, so the admin-set % (Franchise > Module fees) of what the customer paid. */
+const rentalBase = (settings, total) =>
+    roundMoney((total * (Number(settings.serviceCommission?.rental) || 0)) / 100);
 
 /**
- * Amount the franchise rate is applied on.
- *  - base "fare"                : what the customer paid
- *  - base "platform_commission" : Raydo's commission % for this service (admin-set) of what the customer paid
- */
-const bookingBase = (settings, kind, total) =>
-    roundMoney((total * (Number(settings.serviceCommission?.[kind]) || 0)) / 100);
-
-/**
- * Pooling: credited when the booking is COMPLETED and PAID. The franchise is the one whose taxi zone contains the pickup stop.
+ * Pooling: credited when the booking is COMPLETED and PAID. The franchise is the one whose taxi zone contains the pickup
+ *          stop. Base = the Raydo commission recorded on the booking (adminCommissionAmount).
  * Rental : credited when the rental is COMPLETED and PAID. Franchise = the zone of the rental's service location.
  * Both are stamped once and the ledger row is unique per booking, so running this again never pays twice.
- * Bookings made before the franchise started earn nothing (no back-dated money).
+ * Bookings made before sinceOf(franchise) earn nothing (no back-dated money).
  */
 export async function creditFranchiseForPoolingAndRental(limit = 100) {
     const settings = await getTaxiSettings();
@@ -514,7 +518,7 @@ export async function creditFranchiseForPoolingAndRental(limit = 100) {
         const Route = model('TaxiPoolingRoute');
         if (Booking && Route) {
             const rows = await Booking.find({ bookingStatus: 'completed', paymentStatus: 'paid', franchiseCreditCheckedAt: null })
-                .select('route pickupStopId fare createdAt').limit(limit).lean();
+                .sort({ createdAt: 1 }).select('route pickupStopId fare adminCommissionAmount createdAt').limit(limit).lean();
             const routeCache = new Map();
             for (const b of rows) {
                 try {
@@ -523,7 +527,7 @@ export async function creditFranchiseForPoolingAndRental(limit = 100) {
                     const stop = (routeCache.get(key)?.stops || []).find((x) => String(x.id) === String(b.pickupStopId));
                     const app = stop ? await franchiseForPoint(stop.latitude, stop.longitude) : null;
                     if (app && new Date(b.createdAt) >= sinceOf(app)) {
-                        const row = await creditBooking({ franchiseId: app._id, kind: 'pooling', bookingId: b._id, base: bookingBase(settings, 'pooling', Number(b.fare) || 0) });
+                        const row = await creditBooking({ franchiseId: app._id, kind: 'pooling', bookingId: b._id, base: roundMoney(Number(b.adminCommissionAmount) || 0) });
                         if (row) { credited += 1; await Booking.updateOne({ _id: b._id }, { $set: { franchiseApplicationId: app._id } }); }
                     }
                     await Booking.updateOne({ _id: b._id }, { $set: { franchiseCreditCheckedAt: new Date() } });
@@ -538,13 +542,13 @@ export async function creditFranchiseForPoolingAndRental(limit = 100) {
         const Rental = model('TaxiRentalBookingRequest');
         if (Rental) {
             const rows = await Rental.find({ status: 'completed', paymentStatus: 'paid', franchiseCreditCheckedAt: null })
-                .select('serviceLocation totalCost createdAt').limit(limit).lean();
+                .sort({ createdAt: 1 }).select('serviceLocation totalCost createdAt').limit(limit).lean();
             for (const r of rows) {
                 try {
                     const loc = r.serviceLocation || {};
                     const app = (await franchiseForPoint(loc.latitude, loc.longitude)) || (await franchiseForServiceLocation(loc.locationId));
                     if (app && new Date(r.createdAt) >= sinceOf(app)) {
-                        const row = await creditBooking({ franchiseId: app._id, kind: 'rental', bookingId: r._id, base: bookingBase(settings, 'rental', Number(r.totalCost) || 0) });
+                        const row = await creditBooking({ franchiseId: app._id, kind: 'rental', bookingId: r._id, base: rentalBase(settings, Number(r.totalCost) || 0) });
                         if (row) { credited += 1; await Rental.updateOne({ _id: r._id }, { $set: { franchiseApplicationId: app._id } }); }
                     }
                     await Rental.updateOne({ _id: r._id }, { $set: { franchiseCreditCheckedAt: new Date() } });

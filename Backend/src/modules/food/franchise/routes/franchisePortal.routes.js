@@ -113,6 +113,8 @@ const cab = requireModule('taxi');
 router.get('/taxi/overview', cab, wrap((req) => taxi.getTaxiOverview(fid(req)), 'Taxi overview fetched'));
 router.get('/taxi/rides', cab, wrap(async (req) => withoutKeys(['riderPhone'])(await taxi.listTaxiRides(fid(req), req.query)), 'Rides fetched'));
 router.get('/taxi/drivers', cab, wrap((req) => taxi.listTaxiDrivers(fid(req), req.query), 'Drivers fetched'));
+// Bus, pooling and rental bookings credited to this franchise (?service=bus|pooling|rental).
+router.get('/taxi/bookings', cab, wrap((req) => taxi.listTaxiBookings(fid(req), req.query), 'Bookings fetched'));
 router.get('/taxi/drivers/:driverId', cab, wrap((req) => portal.getTaxiDriver(fid(req), req.params.driverId), 'Driver fetched'));
 router.post('/taxi/drivers/:driverId/decision', cab, wrap((req) => portal.decideTaxiDriver(req, req.params.driverId, req.body || {}), 'Driver updated'));
 
