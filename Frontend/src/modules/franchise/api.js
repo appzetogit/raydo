@@ -132,6 +132,11 @@ export const franchiseApi = {
   ledger: (params) => data(client.get("/franchise/ledger", { params })),
   sendSupportMessage: (body) => data(client.post("/franchise/support-messages", body)),
 
+  payouts: () => data(client.get("/franchise/payouts")),
+  requestPayout: (body) => data(client.post("/franchise/payouts", body)),
+  cancelPayout: (requestId) => data(client.post(`/franchise/payouts/${encodeURIComponent(requestId)}/cancel`)),
+  savePayee: (body) => data(client.put("/franchise/payee", body)),
+
   restaurants: (params) => data(client.get("/franchise/restaurants", { params })),
   orders: (params) => data(client.get("/franchise/orders", { params })),
   payments: (params) => data(client.get("/franchise/payments", { params })),

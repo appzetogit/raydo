@@ -13,7 +13,13 @@ import FranchiseFinancePanel from "./finance/FranchiseFinancePanel";
 import FranchiseChargesPanel from "./finance/FranchiseChargesPanel";
 import CommissionRuleEditor from "./finance/CommissionRuleEditor";
 import FranchiseAuditPanel from "./finance/FranchiseAuditPanel";
-import { Modal } from "./finance/ui";
+import { Modal, when } from "./finance/ui";
+
+/** Payee details changed in the 3 days before (or any time after) the payout was requested. */
+const changedJustBefore = (changedAt, requestedAt) => {
+  if (!changedAt || !requestedAt) return false;
+  return new Date(changedAt).getTime() > new Date(requestedAt).getTime() - 3 * 86400000;
+};
 import { InfoList, profileSections } from "./InfoGrid";
 
 const STATUS_OPTIONS = [
@@ -632,7 +638,20 @@ export default function FranchiseApplicationDetail() {
                         <tr key={p.requestId}>
                           <td className="py-2.5 px-3"><div className="font-bold text-blue-600">#{String(p.requestId).slice(-8)}</div><div className="text-[10px] text-slate-400">{new Date(p.requestedAt).toLocaleDateString("en-IN")}</div></td>
                           <td className="py-2.5 px-3 font-black text-emerald-700 text-sm">{inr(p.amount)}</td>
-                          <td className="py-2.5 px-3"><div className="font-bold uppercase">{p.payoutMethod || "bank"}</div><div className="text-[10px] text-slate-500 font-mono">{p.accountDetails?.upiId || p.accountDetails?.accountNumber || ""}</div></td>
+                          <td className="py-2.5 px-3">
+                            <div className="font-bold uppercase">{p.payoutMethod || "bank"}</div>
+                            <div className="text-[11px] font-semibold text-slate-700">{p.accountDetails?.accountHolderName || ""}</div>
+                            {p.payoutMethod === "upi" ? (
+                              <div className="text-[10px] text-slate-500 font-mono">{p.accountDetails?.upiId || ""}</div>
+                            ) : (
+                              <div className="text-[10px] text-slate-500 font-mono">{[p.accountDetails?.bankName, p.accountDetails?.accountNumber, p.accountDetails?.ifscCode].filter(Boolean).join(" · ")}</div>
+                            )}
+                            {p.status === "pending" && changedJustBefore(app.paymentAccountInfo?.updatedAt, p.requestedAt) && (
+                              <div className="mt-1 px-2 py-1 rounded bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-800">
+                                Payment details changed {when(app.paymentAccountInfo.updatedAt)}, shortly before this request. Confirm with the partner by phone before paying.
+                              </div>
+                            )}
+                          </td>
                           <td className="py-2.5 px-3">
                             {p.status === "pending" ? (
                               <div className="flex gap-1.5">
@@ -641,7 +660,7 @@ export default function FranchiseApplicationDetail() {
                               </div>
                             ) : (
                               <div>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.status === "approved" ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}`}>{p.status === "approved" ? "Paid" : "Rejected"}</span>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${p.status === "approved" ? "bg-emerald-100 text-emerald-800" : p.status === "cancelled" ? "bg-slate-100 text-slate-600" : "bg-red-100 text-red-800"}`}>{p.status === "approved" ? "Paid" : p.status === "cancelled" ? "Cancelled by partner" : "Rejected"}</span>
                                 {p.transactionId && <div className="text-[10px] text-slate-500 font-mono mt-0.5">Ref {p.transactionId}</div>}
                               </div>
                             )}

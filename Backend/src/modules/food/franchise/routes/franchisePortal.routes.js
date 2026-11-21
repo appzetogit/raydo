@@ -6,6 +6,8 @@ import * as portal from '../services/franchisePortal.service.js';
 import * as partner from '../services/franchise.public.service.js';
 import * as overview from '../../admin/services/franchiseOverview.service.js';
 import * as taxi from '../../admin/services/franchiseTaxi.service.js';
+import * as payouts from '../services/franchisePayouts.service.js';
+import { sensitiveActionRateLimiter } from '../../../../middleware/rateLimit.js';
 
 /**
  * /v1/franchise: the franchise partner's own API (stage 2).
@@ -15,9 +17,9 @@ import * as taxi from '../../admin/services/franchiseTaxi.service.js';
  * a service that matches on it, so no id in a path or query can reach another
  * franchise's rows. Records outside the franchise answer 404.
  *
- * Not mounted yet, on purpose: delivery fee changes, payout and refund requests and
- * bank detail changes (they wait for the earnings work), and the public application
- * and fee payment.
+ * Not mounted yet, on purpose: delivery fee changes, refund claims, and the public
+ * application and fee payment. Payouts go through franchisePayouts.service.js, never
+ * the older partner functions, which accept a payee per request.
  */
 const router = express.Router();
 router.use(requireFranchiseSession);
@@ -52,15 +54,42 @@ const withoutKeys = (keys) => (data) => ({
     items: (data?.items || []).map((row) => Object.fromEntries(Object.entries(row).filter(([k]) => !keys.includes(k)))),
 });
 
+// Some services hand back live mongoose subdocuments: spreading one copies its internal
+// fields, payee details included, so turn it into a plain object first.
+const maskedPayout = (row) => {
+    const { accountDetails, ...p } = typeof row?.toObject === 'function' ? row.toObject() : row;
+    return {
+        ...p,
+        payTo: p.payoutMethod === 'upi' ? payouts.maskUpi(accountDetails?.upiId) : payouts.maskAccount(accountDetails?.accountNumber),
+    };
+};
+
 /* ---------------------------------------------------------------- account */
 router.get('/me', wrap(async (req) => {
     const data = await partner.getPartnerDashboardData(null, null, { franchiseId: fid(req) });
-    // The dashboard's recent-orders list carries customer phones as well.
-    return data && { ...data, territoryOrders: withoutKeys(['customerPhone'])({ items: data.territoryOrders }).items };
+    if (!data) return data;
+    // The dashboard's recent-orders list carries customer phones as well, and the money
+    // section the full payee details: /payouts serves those, masked.
+    const { paymentAccountInfo, franchiseFeePaymentDetails, ...financialSettings } = data.financialSettings || {};
+    return {
+        ...data,
+        financialSettings,
+        payoutRequests: (data.payoutRequests || []).map(maskedPayout),
+        territoryOrders: withoutKeys(['customerPhone'])({ items: data.territoryOrders }).items,
+    };
 }, 'Franchise fetched'));
 router.get('/finance', wrap((req) => partner.getPartnerFinance(fid(req), req.query), 'Finance fetched'));
-router.get('/ledger', wrap((req) => overview.listFranchiseLedger(fid(req), req.query), 'Ledger fetched'));
+router.get('/ledger', wrap(async (req) => {
+    const data = await overview.listFranchiseLedger(fid(req), req.query);
+    return { ...data, payouts: (data.payouts || []).map(maskedPayout) };
+}, 'Ledger fetched'));
 router.post('/support-messages', wrap((req) => partner.submitPartnerSupportMessage(fid(req), req.body || {}), 'Message sent'));
+
+/* ---------------------------------------------------------------- payouts */
+router.get('/payouts', wrap((req) => payouts.getPayouts(fid(req)), 'Payouts fetched'));
+router.post('/payouts', sensitiveActionRateLimiter, wrap((req) => payouts.requestPayout(req, req.body || {}), 'Payout requested'));
+router.post('/payouts/:requestId/cancel', sensitiveActionRateLimiter, wrap((req) => payouts.cancelPayout(req, req.params.requestId), 'Payout cancelled'));
+router.put('/payee', sensitiveActionRateLimiter, wrap((req) => payouts.updatePayee(req, req.body || {}), 'Payment details saved'));
 
 /* ------------------------------------------------------------------- food */
 const food = requireModule('food');

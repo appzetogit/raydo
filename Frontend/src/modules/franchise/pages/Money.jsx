@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CreditCard, IndianRupee, Info, Landmark, Truck, Wallet } from "lucide-react";
 import { franchiseApi, session } from "../api";
 import {
   Badge, Card, DateRange, Empty, ErrorState, Loading, Pager, Stat, dayLabel, inr, inr2, istDaysAgo, istToday, pct, when,
 } from "@food/pages/admin/franchise/finance/ui";
 import { PageTitle, Pills, Table, useLoad } from "./common";
+import Payouts from "./Payouts";
 
 const holdsFood = () => (session.user?.franchise?.modules || []).includes("food");
 
 export default function Money() {
   const [params, setParams] = useSearchParams();
   const food = holdsFood();
-  const tabs = [["earnings", "Earnings"], ...(food ? [["payments", "Order payments"], ["delivery", "Delivery fees"]] : []), ["fees", "Fees & deposit"]];
+  const tabs = [["earnings", "Earnings"], ["payouts", "Payouts"], ...(food ? [["payments", "Order payments"], ["delivery", "Delivery fees"]] : []), ["fees", "Fees & deposit"]];
   const tab = tabs.some(([k]) => k === params.get("tab")) ? params.get("tab") : "earnings";
 
   return (
@@ -20,6 +21,7 @@ export default function Money() {
       <PageTitle title="Earnings & wallet" sub="Every figure here comes from Raydo's ledger." />
       <div className="mb-4"><Pills value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })} options={tabs} /></div>
       {tab === "earnings" && <Earnings />}
+      {tab === "payouts" && <Payouts />}
       {tab === "payments" && <Payments />}
       {tab === "delivery" && <DeliveryFees />}
       {tab === "fees" && <FeesAndDeposit />}
@@ -45,7 +47,7 @@ function Earnings() {
           </div>
           <p className="flex items-start gap-2 text-xs text-slate-500 mt-4">
             <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-            Payouts are paid on your {d.franchise.payoutCycle || "weekly"} cycle. Requesting a payout from here is not switched on yet; contact support if you need one now.
+            <span>Ask for your money under <Link to="/franchise/money?tab=payouts" className="font-bold text-blue-600 underline">Payouts</Link>. Raydo pays on your {d.franchise.payoutCycle || "weekly"} cycle.</span>
           </p>
         </Card>
       )}
@@ -80,21 +82,6 @@ function Earnings() {
           )}
       </Card>
 
-      {d?.payouts?.length > 0 && (
-        <Card title="Payouts" icon={Landmark}>
-          <Table
-            rowKey={(p) => p.requestId}
-            rows={d.payouts}
-            columns={[
-              { label: "Requested", render: (p) => <span className="text-xs">{when(p.requestedAt)}</span> },
-              { label: "Status", render: (p) => <Badge status={p.status} /> },
-              { label: "Method", render: (p) => p.payoutMethod || "-" },
-              { label: "Reference", render: (p) => <span className="text-xs">{p.transactionId || "-"}</span> },
-              { label: "Amount", right: true, render: (p) => inr2(p.amount) },
-            ]}
-          />
-        </Card>
-      )}
     </div>
   );
 }

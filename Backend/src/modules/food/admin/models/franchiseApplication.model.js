@@ -89,6 +89,9 @@ const franchiseApplicationSchema = new mongoose.Schema({
         ifscCode: { type: String, default: '', trim: true },
         upiId: { type: String, default: '', trim: true },
         accountHolderName: { type: String, default: '', trim: true },
+        // When the payee details last changed. The admin's payout screen flags a payout
+        // requested soon after a change: the usual sign of a taken-over login.
+        updatedAt: { type: Date, default: null },
     },
 
     // Wallet & Payout System
@@ -108,7 +111,8 @@ const franchiseApplicationSchema = new mongoose.Schema({
             upiId: { type: String, default: '' },
             accountHolderName: { type: String, default: '' },
         },
-        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+        // cancelled = withdrawn by the partner before the admin acted
+        status: { type: String, enum: ['pending', 'approved', 'rejected', 'cancelled'], default: 'pending' },
         requestedAt: { type: Date, default: Date.now },
         processedAt: { type: Date, default: null },
         adminNote: { type: String, default: '' },

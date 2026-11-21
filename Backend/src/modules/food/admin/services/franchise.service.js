@@ -343,6 +343,7 @@ export async function updateCommissionSettings(id, body = {}, actor = {}) {
         app.paymentAccountInfo = {
             bankName: pick('bankName', 80), accountNumber: pick('accountNumber', 34), ifscCode: pick('ifscCode', 11).toUpperCase(),
             upiId: pick('upiId', 80), accountHolderName: pick('accountHolderName', 120),
+            updatedAt: new Date(),
         };
     }
     if (selectedModules !== undefined) {

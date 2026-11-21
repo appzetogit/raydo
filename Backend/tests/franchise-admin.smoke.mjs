@@ -54,9 +54,11 @@ const main = async () => {
         assert.ok(franchiseRoutes.length > 40, `only ${franchiseRoutes.length} routes`);
         assert.ok(franchiseRoutes.some((r) => r.path === '/franchise/applications'));
     });
-    await check('nothing that pays out or rewrites the ledger is mounted', async () => {
+    await check('only the payout decision is mounted; refund claims and ledger rewrites are not', async () => {
         const paths = franchiseRoutes.map((r) => r.path);
-        assert.equal(paths.filter((p) => /payout-requests|refund-requests/.test(p)).length, 0);
+        assert.deepEqual(franchiseRoutes.filter((r) => /payout-requests/.test(r.path)).map((r) => `${r.methods.join(',')} ${r.path}`),
+            ['patch /franchise/applications/:id/payout-requests/:requestId']);
+        assert.equal(paths.filter((p) => /refund-requests/.test(p)).length, 0);
         assert.ok(!franchiseRoutes.some((r) => r.path.endsWith('/reconcile') && r.methods.includes('post')));
     });
     await check('public applications are not mounted; /v1/franchise is only the partner portal', async () => {

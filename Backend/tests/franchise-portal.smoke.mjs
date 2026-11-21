@@ -222,12 +222,12 @@ const main = async () => {
 
     /* ------------------------------------------------------------- what is on */
     console.log('\nwhat is switched on');
-    await check('the only writes are support messages and rider / driver decisions', async () => {
+    await check('the only writes are payouts, payee details, support messages and rider / driver decisions', async () => {
         const writes = portalRoutes.stack
             .filter((layer) => layer.route && Object.keys(layer.route.methods).some((m) => m !== 'get'))
             .map((layer) => layer.route.path)
             .sort();
-        assert.deepEqual(writes, ['/riders/:riderId/decision', '/support-messages', '/taxi/drivers/:driverId/decision']);
+        assert.deepEqual(writes, ['/payee', '/payouts', '/payouts/:requestId/cancel', '/riders/:riderId/decision', '/support-messages', '/taxi/drivers/:driverId/decision']);
     });
 
     /* -------------------------------------------------------------- shutting */
