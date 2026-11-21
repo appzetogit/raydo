@@ -33,6 +33,7 @@ import { calculateOrderPricing, resolveOrderZoneId, resolveAuthoritativeItems } 
 import { computeBill } from '../../shared/billing.js';
 import * as dispatchService from './order-dispatch.service.js';
 import * as deliveryService from './order-delivery.service.js';
+import { franchiseForNewOrder } from '../../franchise/services/franchiseAttribution.service.js';
 import * as paymentService from './order-payment.service.js';
 import {
   enqueueOrderEvent,
@@ -422,10 +423,14 @@ export async function createOrder(userId, dto) {
       ? recipientDetails.phone
       : String(dto.customerPhone || deliveryAddress.phone || "");
 
+    // The franchise operating this restaurant's zone (null when there is none).
+    const franchiseId = await franchiseForNewOrder(restaurant);
+
     const order = new FoodOrder({
       userId: toObjectId(userId, 'User ID'),
       restaurantId: restaurantId,
       zoneId: orderZoneId,
+      franchiseId,
       items: (dto.items || []).map(item => ({
         ...item,
         itemId: toObjectId(item.itemId, 'Item ID')

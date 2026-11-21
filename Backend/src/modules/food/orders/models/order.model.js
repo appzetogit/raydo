@@ -447,6 +447,15 @@ const orderSchema = new mongoose.Schema(
             ref: 'FoodZone',
             index: true
         },
+        // The franchise operating the restaurant's zone when the order was placed. Fixed
+        // from then on, so a later territory change never moves past orders' earnings.
+        // See modules/food/franchise/services/franchiseAttribution.service.js.
+        franchiseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'FranchiseApplication',
+            default: null,
+            index: true
+        },
         transactionId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'FoodTransaction',

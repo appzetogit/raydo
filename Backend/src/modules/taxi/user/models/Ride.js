@@ -794,6 +794,14 @@ const rideSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    // The franchise credited for this ride (franchiseTaxi.service.js creditFranchiseForRide).
+    // Declared so the stamp is not dropped by strict mode.
+    franchiseApplicationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'FranchiseApplication',
+      default: null,
+      index: true,
+    },
     walletSettledAt: {
       type: Date,
       default: null,

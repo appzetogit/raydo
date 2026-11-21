@@ -33,6 +33,7 @@ import {
 import { sendFoodInvoiceEmail } from '../../../../services/email.service.js';
 import { sendFoodInvoiceWhatsApp } from '../../../../services/whatsapp.service.js';
 import { assertPartnerMayWork } from '../../delivery/services/deliverySubscriptionCore.js';
+import { creditOrderSoon } from '../../franchise/services/franchiseAttribution.service.js';
 
 function emitOrderUpdate(order, deliveryPartnerId) {
   try {
@@ -1122,6 +1123,10 @@ export async function completeDelivery(orderId, deliveryPartnerId, body = {}) {
     recordedById: deliveryPartnerId,
     note: `Delivery completed. Prev status: ${prevPayStatus}`,
   });
+
+  // Franchise earning for this order, now that the payment is captured. Fire-and-forget;
+  // the 10-minute sweep catches anything missed.
+  if (order.franchiseId) creditOrderSoon(order._id);
 
   // Delivery finished — free the driver for the next job (ride or delivery).
   await releaseDeliveryLock(deliveryPartnerId, order._id);

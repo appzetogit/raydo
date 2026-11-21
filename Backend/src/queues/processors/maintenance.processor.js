@@ -52,5 +52,15 @@ export const processMaintenanceJob = async (job) => {
         }
     }
 
+    if (type === 'FRANCHISE_EARNINGS_SWEEP') {
+        try {
+            const { runFranchiseEarningsSweep } = await import('../../modules/food/franchise/services/franchiseAttribution.service.js');
+            const r = await runFranchiseEarningsSweep();
+            logger.info(`[BullMQ:maintenance] FRANCHISE_EARNINGS_SWEEP ${JSON.stringify(r)}`);
+        } catch (err) {
+            logger.error(`[BullMQ:maintenance] franchise earnings sweep failed: ${err.message}`);
+        }
+    }
+
     return { processed: true, type, jobId: job.id };
 };

@@ -2634,6 +2634,12 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
     }
 
     walletUpdate = await settleCompletedRideWallet({ rideId: ride._id });
+    // Franchise earning for the zone's franchise. Fire-and-forget and idempotent; it never
+    // throws, and the 10-minute franchise sweep retries anything missed.
+    // (Called even when walletUpdate is null: a zero-amount ride is still settled.)
+    import('../../food/admin/services/franchiseTaxi.service.js')
+      .then(({ creditFranchiseForRide }) => creditFranchiseForRide(ride._id))
+      .catch((err) => logger.warn(`franchise ride credit hook failed for ride ${ride._id}: ${err?.message || err}`));
     await consumeUserSubscriptionRide({ ride });
     const settledRide = await Ride.findById(ride._id).select('completedAt driverEarnings estimatedDistanceMeters');
 

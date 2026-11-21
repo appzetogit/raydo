@@ -253,6 +253,17 @@ const restaurantSchema = new mongoose.Schema(
       ref: "FoodZone",
       index: true,
     },
+    /**
+     * The franchise operating this restaurant's zone, kept in step with the zone by
+     * franchiseAttribution.service.js. Only a label for the franchise's lists: an
+     * order's own franchiseId is what earnings follow.
+     */
+    franchiseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FranchiseApplication",
+      default: null,
+      index: true,
+    },
     businessModel: {
       type: String,
       trim: true,

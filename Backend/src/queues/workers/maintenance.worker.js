@@ -60,6 +60,19 @@ const startMaintenanceWorker = async () => {
         }
     );
 
+    // 3b. Franchise earnings (every 10 minutes, offset from the stale sweep): label
+    //     restaurants by zone, credit delivered orders and settled rides the instant
+    //     hooks missed, reverse refunds. Idempotent, so overlapping runs are harmless.
+    //     See modules/food/franchise/services/franchiseAttribution.service.js.
+    await maintenanceQueue.add(
+        'FRANCHISE_EARNINGS_SWEEP',
+        { type: 'FRANCHISE_EARNINGS_SWEEP' },
+        {
+            repeat: { pattern: '5-59/10 * * * *' },
+            jobId: 'franchise_earnings_sweep_job'
+        }
+    );
+
     // 4. Restaurant payout cycle: just after midnight India time (18:45 UTC)
     //    close the cycle that ended and file its automatic withdrawals
     //    (modules/food/restaurant/services/payoutCycle.service.js). Daily and
