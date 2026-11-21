@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Bike, Car, ClipboardList, Headphones, LayoutDashboard, LogOut, Map, Menu, Store, Wallet, X } from "lucide-react";
+import { Bike, Car, ClipboardList, Headphones, LayoutDashboard, LogOut, Map, Menu, ReceiptText, Store, Wallet, X } from "lucide-react";
 import { franchiseApi, session } from "./api";
 import { ServiceChips } from "@food/pages/admin/franchise/finance/ui";
 
@@ -9,6 +9,7 @@ const LINKS = [
   { to: "/franchise/riders", label: "Delivery riders", icon: Bike, module: "food" },
   { to: "/franchise/orders", label: "Food orders", icon: ClipboardList, module: "food" },
   { to: "/franchise/restaurants", label: "Restaurants", icon: Store, module: "food" },
+  { to: "/franchise/refund-claims", label: "Refund claims", icon: ReceiptText, module: "food" },
   { to: "/franchise/drivers", label: "Taxi drivers", icon: Car, module: "taxi" },
   { to: "/franchise/rides", label: "Taxi rides", icon: Map, module: "taxi" },
   { to: "/franchise/money", label: "Earnings & wallet", icon: Wallet },

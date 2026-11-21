@@ -13,6 +13,7 @@ import FranchiseFinancePanel from "./finance/FranchiseFinancePanel";
 import FranchiseChargesPanel from "./finance/FranchiseChargesPanel";
 import CommissionRuleEditor from "./finance/CommissionRuleEditor";
 import FranchiseAuditPanel from "./finance/FranchiseAuditPanel";
+import FranchiseRefundClaimsPanel from "./finance/FranchiseRefundClaimsPanel";
 import { Modal, when } from "./finance/ui";
 
 /** Payee details changed in the 3 days before (or any time after) the payout was requested. */
@@ -672,6 +673,9 @@ export default function FranchiseApplicationDetail() {
                 </div>
               ) : <Empty>No payout requests yet.</Empty>}
             </Card>
+            <div className="mt-6">
+              <FranchiseRefundClaimsPanel app={app} onChanged={load} />
+            </div>
           </div>
         </div>
       )}

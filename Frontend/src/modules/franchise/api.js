@@ -137,6 +137,11 @@ export const franchiseApi = {
   cancelPayout: (requestId) => data(client.post(`/franchise/payouts/${encodeURIComponent(requestId)}/cancel`)),
   savePayee: (body) => data(client.put("/franchise/payee", body)),
 
+  refundClaims: () => data(client.get("/franchise/refund-claims")),
+  claimableForOrder: (orderId) => data(client.get(`/franchise/refund-claims/order/${encodeURIComponent(orderId)}`)),
+  fileRefundClaim: (body) => data(client.post("/franchise/refund-claims", body)),
+  withdrawRefundClaim: (claimId) => data(client.post(`/franchise/refund-claims/${encodeURIComponent(claimId)}/withdraw`)),
+
   restaurants: (params) => data(client.get("/franchise/restaurants", { params })),
   orders: (params) => data(client.get("/franchise/orders", { params })),
   payments: (params) => data(client.get("/franchise/payments", { params })),

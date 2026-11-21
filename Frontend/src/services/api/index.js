@@ -1098,6 +1098,8 @@ export const adminAPI = {
     apiClient.patch(`/food/admin/franchise/applications/${String(id)}/commission`, body ?? {}, { contextModule: "admin" }),
   updateFranchiseFormConfig: (body) =>
     apiClient.put("/food/admin/franchise/form-config", body ?? {}, { contextModule: "admin" }),
+  decideFranchiseRefundClaim: (id, claimId, body) =>
+    apiClient.patch(`/food/admin/franchise/applications/${String(id)}/refund-claims/${encodeURIComponent(String(claimId))}`, body ?? {}, { contextModule: "admin" }),
   updateFranchisePayoutStatus: (id, requestId, body) =>
     apiClient.patch(`/food/admin/franchise/applications/${String(id)}/payout-requests/${String(requestId)}`, body ?? {}, { contextModule: "admin" }),
   updateFranchiseProfile: (id, body) =>

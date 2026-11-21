@@ -4,6 +4,21 @@ import * as overviewService from '../../admin/services/franchiseOverview.service
 import * as taxiService from '../../admin/services/franchiseTaxi.service.js';
 import { actorOf } from '../../admin/services/franchiseAudit.service.js';
 import * as requestsService from '../../admin/services/franchiseRequests.service.js';
+import { decideClaim } from '../../franchise/services/franchiseRefundClaims.service.js';
+
+/**
+ * PATCH /v1/food/admin/franchise/applications/:id/refund-claims/:claimId
+ * body: { decision: 'approve' | 'reject', adminNote }
+ */
+export async function decideRefundClaimController(req, res, next) {
+    try {
+        const { decision, adminNote } = req.body || {};
+        const data = await decideClaim(req.params.id, req.params.claimId, { decision, adminNote }, actorOf(req));
+        return sendResponse(res, 200, decision === 'approve' ? 'Refund claim approved' : 'Refund claim rejected', data);
+    } catch (err) {
+        next(err);
+    }
+}
 
 /**
  * GET /v1/food/admin/franchise/applications

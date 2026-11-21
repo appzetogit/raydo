@@ -7,6 +7,7 @@ import * as partner from '../services/franchise.public.service.js';
 import * as overview from '../../admin/services/franchiseOverview.service.js';
 import * as taxi from '../../admin/services/franchiseTaxi.service.js';
 import * as payouts from '../services/franchisePayouts.service.js';
+import * as claims from '../services/franchiseRefundClaims.service.js';
 import { sensitiveActionRateLimiter } from '../../../../middleware/rateLimit.js';
 
 /**
@@ -17,9 +18,10 @@ import { sensitiveActionRateLimiter } from '../../../../middleware/rateLimit.js'
  * a service that matches on it, so no id in a path or query can reach another
  * franchise's rows. Records outside the franchise answer 404.
  *
- * Not mounted yet, on purpose: delivery fee changes, refund claims, and the public
- * application and fee payment. Payouts go through franchisePayouts.service.js, never
- * the older partner functions, which accept a payee per request.
+ * Not mounted yet, on purpose: delivery fee changes, and the public application and fee
+ * payment. Payouts and refund claims go through franchisePayouts.service.js and
+ * franchiseRefundClaims.service.js, never the older partner functions in
+ * franchise.public.service.js (a payee per request; a claim check that can never pass).
  */
 const router = express.Router();
 router.use(requireFranchiseSession);
@@ -100,6 +102,11 @@ router.get('/delivery-fees', food, wrap((req) => portal.getDeliveryFees(fid(req)
 router.get('/riders', food, wrap((req) => portal.listRiders(fid(req), req.query), 'Riders fetched'));
 router.get('/riders/:riderId', food, wrap((req) => portal.getRider(fid(req), req.params.riderId), 'Rider fetched'));
 router.post('/riders/:riderId/decision', food, wrap((req) => portal.decideRider(req, req.params.riderId, req.body || {}), 'Rider updated'));
+// Refund claims: money the franchise paid a customer itself, claimed back from the platform.
+router.get('/refund-claims', food, wrap((req) => claims.listClaims(fid(req)), 'Refund claims fetched'));
+router.get('/refund-claims/order/:orderId', food, wrap((req) => claims.claimableForOrder(fid(req), req.params.orderId), 'Order checked'));
+router.post('/refund-claims', food, sensitiveActionRateLimiter, wrap((req) => claims.createClaim(req, req.body || {}), 'Refund claim filed'));
+router.post('/refund-claims/:claimId/withdraw', food, sensitiveActionRateLimiter, wrap((req) => claims.cancelClaim(req, req.params.claimId), 'Refund claim withdrawn'));
 
 /* ------------------------------------------------------------------- taxi */
 const cab = requireModule('taxi');

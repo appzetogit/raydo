@@ -13,6 +13,7 @@ const Restaurants = lazy(() => import("./pages/Restaurants"));
 const TaxiRides = lazy(() => import("./pages/TaxiRides"));
 const Money = lazy(() => import("./pages/Money"));
 const Support = lazy(() => import("./pages/Support"));
+const RefundClaims = lazy(() => import("./pages/RefundClaims"));
 
 /** Signed-in pages; anyone else goes to the login with a way back. */
 function RequireSession({ children }) {
@@ -45,6 +46,7 @@ export default function FranchiseApp() {
             <Route path="riders" element={<RequireModule module="food"><Riders /></RequireModule>} />
             <Route path="orders" element={<RequireModule module="food"><Orders /></RequireModule>} />
             <Route path="restaurants" element={<RequireModule module="food"><Restaurants /></RequireModule>} />
+            <Route path="refund-claims" element={<RequireModule module="food"><RefundClaims /></RequireModule>} />
             <Route path="drivers" element={<RequireModule module="taxi"><Drivers /></RequireModule>} />
             <Route path="rides" element={<RequireModule module="taxi"><TaxiRides /></RequireModule>} />
             <Route path="money" element={<Money />} />

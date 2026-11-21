@@ -129,11 +129,19 @@ const franchiseApplicationSchema = new mongoose.Schema({
         amount: { type: Number, required: true },
         reason: { type: String, default: '' },
         method: { type: String, default: 'UPI / Original Account' },
-        status: { type: String, enum: ['pending', 'claimed_from_admin', 'approved_by_admin', 'processed', 'rejected'], default: 'pending' },
+        // claimed_from_admin = waiting for the admin; approved_by_admin = reimbursed to the wallet;
+        // cancelled = withdrawn by the partner. pending / processed are from the previous raydo.in.
+        status: { type: String, enum: ['pending', 'claimed_from_admin', 'approved_by_admin', 'processed', 'rejected', 'cancelled'], default: 'pending' },
         claimReason: { type: String, default: '' },
         claimedAt: { type: Date, default: null },
         requestedTime: { type: Date, default: Date.now },
         processedAt: { type: Date, default: null },
+        // Evidence the partner gives that it paid the customer (franchiseRefundClaims.service.js)
+        orderMongoId: { type: mongoose.Schema.Types.ObjectId, default: null },
+        paidVia: { type: String, enum: ['upi', 'bank', 'cash', ''], default: '' },
+        paymentReference: { type: String, default: '' },
+        adminNote: { type: String, default: '' },
+        decidedAt: { type: Date, default: null },
     }],
 
     // Account control (admin): suspended = login blocked; archived = soft-deleted (kept for history)

@@ -415,8 +415,8 @@ router.use(attachFoodAdminContext);
 
 // ----- Franchise Management -----
 // Managing franchises. Partner logins are refused here (core/admin/franchiseLockout.js); they
-// use /v1/franchise instead (core/admin/franchiseSession.js). Paying a partner's payout request
-// is mounted (stage 4); refund claims and ledger-rewriting reconcile writes are still not.
+// use /v1/franchise instead (core/admin/franchiseSession.js). Paying payout requests and deciding
+// refund claims are mounted; ledger-rewriting reconcile writes are still not.
 // Only platform / module super admins may manage franchises. A franchise login (or any sub-admin)
 // must never reach these routes - they control commissions, fees and payouts.
 router.use('/franchise', (req, _res, next) =>
@@ -454,6 +454,9 @@ router.patch('/franchise/applications/:id/commission', fin, franchiseAdminContro
 // Mark a partner's payout paid (with the transfer reference; debits the wallet in the same
 // transaction) or reject it. Platform super admin only.
 router.patch('/franchise/applications/:id/payout-requests/:requestId', fin, franchiseAdminController.updatePayoutRequestStatusController);
+// Approve (reimburse to the wallet) or reject a partner's refund claim. Platform super admin only.
+// The older /refund-requests route stays unmounted: its check can never pass.
+router.patch('/franchise/applications/:id/refund-claims/:claimId', fin, franchiseAdminController.decideRefundClaimController);
 router.post('/franchise/applications/:id/support-messages/:messageId/reply', franchiseAdminController.replySupportMessageController);
 router.delete('/franchise/applications/:id', fin, franchiseAdminController.deleteApplicationController);
 

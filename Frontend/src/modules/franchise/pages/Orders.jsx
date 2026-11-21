@@ -1,15 +1,23 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReceiptText } from "lucide-react";
 import { franchiseApi } from "../api";
-import { Badge, Card, DateRange, Empty, ErrorState, Loading, Pager, inr, istDaysAgo, istToday, when } from "@food/pages/admin/franchise/finance/ui";
+import { Badge, Card, DateRange, Empty, ErrorState, Loading, Pager, btn, inr, istDaysAgo, istToday, when } from "@food/pages/admin/franchise/finance/ui";
 import { PageTitle, Pills, Table, orderBadge as STATUS_BADGE, useLoad } from "./common";
+import { ClaimModal } from "./RefundClaims";
 
 const LIMIT = 25;
+// The server decides; this only hides the button where it would always say no.
+const claimable = (o) => (o.status === "delivered" || /^cancel/.test(o.status || ""))
+  && Date.now() - new Date(o.createdAt).getTime() < 30 * 86400000;
 
 /** Food orders of the franchise's territory, with what the franchise earned on each. */
 export default function Orders() {
   const [status, setStatus] = useState("");
   const [range, setRange] = useState({ from: istDaysAgo(29), to: istToday() });
   const [page, setPage] = useState(1);
+  const [claiming, setClaiming] = useState(null);
+  const navigate = useNavigate();
 
   const list = useLoad(() => franchiseApi.orders({
     status: status || undefined,
@@ -43,12 +51,16 @@ export default function Orders() {
                   { label: "Payment", render: (o) => <span className="text-xs">{o.paymentMethod || "-"}<span className="text-slate-400"> · {o.paymentStatus || "-"}</span></span> },
                   { label: "Total", right: true, render: (o) => inr(o.total) },
                   { label: "You earned", right: true, render: (o) => <span className="font-bold text-emerald-700">{inr(o.franchiseEarned)}</span> },
+                  { label: "", render: (o) => (claimable(o) ? (
+                    <button className={`${btn.ghost} whitespace-nowrap`} onClick={() => setClaiming(o)}><ReceiptText className="w-3.5 h-3.5" /> Claim refund</button>
+                  ) : null) },
                 ]}
               />
               <Pager page={page} limit={LIMIT} total={list.data.total} onPage={setPage} />
             </>
           )}
       </Card>
+      {claiming && <ClaimModal order={claiming} onClose={() => setClaiming(null)} onFiled={() => { setClaiming(null); navigate("/franchise/refund-claims"); }} />}
     </div>
   );
 }
