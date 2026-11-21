@@ -1,4 +1,111 @@
-# Recurring payload injection in `Frontend/vite.config.js`
+# Recurring payload injection
+
+Two waves so far. The second (November 2026) is newer and worse, so it comes first;
+the original `vite.config.js` findings follow it unchanged.
+
+---
+
+# Wave 2 (Nov 2026): GitHub branches rewritten from the `appzetogit` account
+
+Found 2026-11-20 while preparing a deploy. Written up 2026-11-21.
+
+**Status: ongoing.** Both branches on GitHub carry the payload right now, and they
+have been rewritten again after every cleanup or new push. The pushes came from the
+`appzetogit` account (see below), so that account or a machine signed in as it is
+compromised. Until that is fixed, assume anything pushed to GitHub can be rewritten.
+
+## What changed
+
+The attacker does not add new commits. It **rewrites your latest commit** on each
+branch and force-pushes the copy, keeping the original author (`omp10`), author
+date and message. The committer date moves by only a few seconds, so in `git log`
+the rewritten commit looks exactly like the one you made.
+
+Each rewrite adds the same five changes:
+
+| File | Change | Effect |
+|---|---|---|
+| `Backend/init`, `Frontend/init` (new) | ~30 lines of harmless-looking setup code, then on one line, after hundreds of spaces, a ~21,000-character obfuscated script | The payload. Runs under Node with full access (`require`, `module`); sets the identifier `global.z = '-n9000'` |
+| `Backend/package.json` | `start` and `dev` become `node init && ...` | The payload runs whenever the API or the dev server starts, including under pm2 on the server |
+| `Frontend/package.json` | `dev`, `build`, `start` become `node init && ...` | The payload runs on every build, **before** `check-source-integrity.mjs` |
+| `.gitignore` | removes `.env`, `.env.*` and `.vscode/*` | The next ordinary `git add -A` would commit and push every secret key file |
+| `Frontend/vite.config.js` | 266 tab characters appended after the closing `});` | Padding only in this version; the spot the wave-1 payload used |
+
+The two `init` files are byte-identical. The identifier differs from wave 1
+(`global.i = 'A8-3388-2'`) but the hiding technique is the same: code pushed far to
+the right of an ordinary-looking line.
+
+## Timeline on GitHub
+
+From GitHub's push events and `git reflog` (UTC):
+
+| When | Branch | Pushed by | Before → after | |
+|---|---|---|---|---|
+| 11-04 12:32 | `main` | `omp10` | `12c6cdc` → `258a128` | genuine |
+| 11-05 08:00 | `review-otp-login` | `omp10` | `161aff9` → `2cc3eec` | genuine |
+| 11-10 08:50 | `main` | **`appzetogit`** | `258a128` → `4512128` | rewritten copy of `258a128` |
+| 11-10 08:50 | `review-otp-login` | **`appzetogit`** | `2cc3eec` → `4b25d71` | rewritten copy of `2cc3eec` |
+| 11-14 16:33 | `main` | **`appzetogit`** | `4512128` → `4d0fa76` | rewritten again |
+| 11-14 16:33 | `review-otp-login` | **`appzetogit`** | `4b25d71` → `997fd21` | rewritten again |
+| before 11-20 | `main` | not in the events feed | → `77f30f9` | current head, parent `12c6cdc` |
+| before 11-20 | `review-otp-login` | not in the events feed | → `8408d90` | current head, parent `161aff9` |
+
+Both branches are pushed within seconds of each other, every time. That is a
+script, not a person.
+
+## Why the existing guard did not help
+
+- `check-source-integrity.mjs` scans files with code extensions only. An
+  extensionless `init` is never read.
+- In the rewritten `Frontend/package.json` the build runs `node init` **before**
+  the guard, so the payload has already executed by the time the guard starts.
+- The `.githooks/pre-commit` hook protects commits made on a clean machine. These
+  commits are made somewhere else and force-pushed, so it never sees them.
+
+## What is clean
+
+As of 2026-11-20, checked on the local clone in `D:\projects\raydo`:
+
+- no `init` files; `package.json` scripts do not call `node init`
+- no tracked text file has a line over 3,000 characters (only images and video do)
+- local `main` still has the genuine `258a128`; the stage 2 franchise commit
+  `fc7e736` and the partner-portal commit `d3dcb6e` sit on top of it, **unpushed**
+
+Today's builds, tests and preview runs used this clean copy only.
+
+## Not known yet
+
+- **Whether the server pulled a rewritten commit.** If `/root/raydo-new` is on
+  `4512128`, `4d0fa76` or `77f30f9`, the payload ran as root every time pm2
+  started the API, and every secret on that box should be treated as exposed.
+- **How the `appzetogit` account is being used**: a stolen token, an SSH or deploy
+  key, an OAuth or GitHub App, or a machine that stays signed in.
+- **Whether wave 1 and wave 2 are the same intruder.** Same hiding technique,
+  different identifier, and wave 2 has moved from one developer's working tree to
+  the shared GitHub account.
+
+## What still needs a person
+
+1. **Lock down `appzetogit`**: change the password and enable two-factor login.
+   Revoke its personal access tokens, SSH keys, deploy keys and authorised
+   OAuth/GitHub Apps. Read its security log for where the pushes came from.
+2. **Find and clean the machine** that is signed in to GitHub as `appzetogit`.
+3. **On the server**, before anything else: `git -C /root/raydo-new log -1`, and
+   check for `init` files and `node init` in either `package.json`. If they are
+   there, stop pm2, then change the Mongo URI, JWT secrets, Razorpay, Firebase and
+   SMS keys.
+4. **Only after 1–3**, restore both branches from the clean local clone and turn
+   on branch protection for `main` (no force pushes, required reviews). Until
+   then a restore will simply be rewritten again.
+5. **Close the guard's gaps**: make it scan extensionless files at the root of
+   `Frontend/` and `Backend/`, make it refuse any `package.json` script that runs a
+   file other than the known ones, and run it in CI on every push.
+6. **Never deploy with a bare `git pull`.** Check out a reviewed commit by hash
+   and compare `package.json` scripts before running `npm`.
+
+---
+
+# Wave 1 (Aug–Sep 2026): payload injected into `Frontend/vite.config.js`
 
 Findings from tracing the seven "strip the EtherHiding payload" commits. Written
 down because the important parts are timestamps and open questions, and both get
